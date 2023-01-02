@@ -12,9 +12,11 @@
 #define TFT_WIDTH  240
 #define TFT_HEIGHT 320
 
+//PA8 as ILI9341_RESET
+#define ILI9341_RESET_LOW GPIOA->BSRR |= GPIO_BSRR_BR8;
+#define ILI9341_RESET_HIG GPIOA->BSRR |= GPIO_BSRR_BS8;
 
-
-void TFT_Init();
+void ILI9341_Init();
 
 
 //
