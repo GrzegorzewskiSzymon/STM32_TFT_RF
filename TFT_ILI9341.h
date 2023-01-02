@@ -17,7 +17,7 @@
 #define ILI9341_RESET_HIG GPIOA->BSRR |= GPIO_BSRR_BS8;
 
 void ILI9341_Init();
-
+void ILI9341_DrawPixel(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, uint16_t color);
 
 //
 // Color definitions
