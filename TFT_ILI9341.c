@@ -127,7 +127,7 @@ void ILI9341_DrawPixel(uint16_t posX, uint16_t posY, uint16_t width, uint16_t he
 	SPI1_DC_COMMAND
 	Spi1_Send(&tmp_command, 1);
 	SPI1_DC_DATA;
-	for(uint16_t i = 0; i < width * height; i++)
+	for(uint32_t i = 0; i < width * height; i++)
 		Spi1_Send(color_tab, 2);
 }
 
