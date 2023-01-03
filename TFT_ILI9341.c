@@ -31,6 +31,42 @@ void ILI9341_sendCommandAndData(uint8_t command, uint8_t *data, uint32_t nrOfDat
 }
 
 
+void ILI9341_seRotation(uint8_t rotation)
+{
+//	SPI1_DC_COMMAND
+//	Spi1_Send((uint8_t*)ILI9341_MADCTL, 1);
+
+	uint8_t tmp_command = ILI9341_MADCTL;
+	SPI1_DC_COMMAND
+	Spi1_Send(&tmp_command, 1);
+
+	SPI1_DC_DATA;
+
+	uint8_t data = 0;
+
+	if(rotation>3)
+		return;
+
+	switch(rotation)
+	{
+	case 0: // angle=0
+		data = 0b01001000; // MX BGR
+ 		break;
+
+	case 1:// angle=90
+		data = 0b00101000; // MV BGR
+		break;
+
+	case 2:// angle=180
+		data = 0b10001000; // MY BGR
+		break;
+
+	case 3:// angle=270
+		data = 0b11101000; // MY MX MV BGR
+		break;
+	}
+	Spi1_Send(&data, 1);
+}
 
 static const uint8_t ILI9341_InitializationData[] =
 {
@@ -84,6 +120,7 @@ void ILI9341_Init()
 			ILI9341_Delay_ms(150);
 		}
 	}
+	ILI9341_seRotation(ILI9341_ROTATION);
 }
 
 uint8_t ILI9341_setFrame(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height)

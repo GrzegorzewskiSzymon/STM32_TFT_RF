@@ -8,9 +8,18 @@
 #ifndef LIBRARIES_TFT_ILI9341_TFT_ILI9341_H_
 #define LIBRARIES_TFT_ILI9341_TFT_ILI9341_H_
 
+// 0 - 0dgr; 1 - 90dgr; 2 - 180dgr; 3 - 270dgr
+#define ILI9341_ROTATION 2
 
-#define TFT_WIDTH  240
-#define TFT_HEIGHT 320
+
+#if(ILI9341_ROTATION == 0) || (ILI9341_ROTATION == 2)
+#define TFT_WIDTH 240  ///< ILI9341 max TFT width
+#define TFT_HEIGHT 320 ///< ILI9341 max TFT height
+#elif(ILI9341_ROTATION == 1) || (ILI9341_ROTATION == 3)
+#define TFT_WIDTH 320  ///< ILI9341 max TFT width
+#define TFT_HEIGHT 240 ///< ILI9341 max TFT height
+#endif
+
 
 //PA8 as ILI9341_RESET
 #define ILI9341_RESET_LOW GPIOA->BSRR |= GPIO_BSRR_BR8;
@@ -19,7 +28,7 @@
 void ILI9341_Init();
 void ILI9341_DrawPixel(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, uint16_t color);
 void ILI9341_DrawImg(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, const uint8_t *img);
-//
+void ILI9341_seRotation(uint8_t rotation);
 // Color definitions
 //
 #define ILI9341_BLACK 0x0000       ///<   0,   0,   0
