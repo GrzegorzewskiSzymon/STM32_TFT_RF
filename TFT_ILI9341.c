@@ -90,36 +90,34 @@ void ILI9341_Init()
 void ILI9341_DrawPixel(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, uint16_t color)
 {
 
-	if(posX >=TFT_WIDTH || posY >=TFT_HEIGHT)
+	if (posX+width > TFT_WIDTH || posY+height > TFT_HEIGHT)
 		return;
 
+	uint8_t posY_tab[4];
+	uint8_t posX_tab[4];
 
-	 uint8_t posY_tab[4];
-	 uint8_t posX_tab[4];
+	posX_tab[0] =   posX >> 8;
+	posX_tab[1] =   posX & 0xFF;
+	posX_tab[2] =  (posX + width - 1) >> 8;
+	posX_tab[3] = ((posX + width - 1) & 0xFF);
 
-	 posX_tab[0] = posX>>8;
-	 posX_tab[1] = (posX&0xFF);
-	 posX_tab[2] = ( posX+width)>>8;
-	 posX_tab[3] = ((posX+width)&0xFF);
+	posY_tab[0] =   posY >> 8;
+	posY_tab[1] =   posY & 0xFF;
+	posY_tab[2] =  (posY + height - 1) >> 8;
+	posY_tab[3] = ((posY + height - 1) & 0xFF);
 
-	 posY_tab[0] = posY>>8;
-	 posY_tab[1] = (posY&0xFF);
-	 posY_tab[2] = ( posY+height)>>8;
-	 posY_tab[3] = ((posY+height)&0xFF);
+	ILI9341_sendCommandAndData(ILI9341_CASET, posX_tab, 4);
+	ILI9341_sendCommandAndData(ILI9341_PASET, posY_tab, 4);
 
-	 ILI9341_sendCommandAndData(ILI9341_CASET, posX_tab, 4);
-	 ILI9341_sendCommandAndData(ILI9341_PASET, posY_tab, 4);
+	uint8_t color_tab[2];
+	color_tab[0] =  color >> 8;
+	color_tab[1] =  color & 0xff;
 
-	 uint8_t color_tab[2];
-	 color_tab[1] = (color & 0xff00)>>8;
-	 color_tab[0] = color & 0xff;
-
-//	 ILI9341_sendCommandAndData(ILI9341_RAMWR, color_tab, 3);
 	uint8_t tmp_command = ILI9341_RAMWR;
 	SPI1_DC_COMMAND
 	Spi1_Send(&tmp_command, 1);
 	SPI1_DC_DATA;
-	for(uint16_t i = 0; i < width*height; i++)
+	for(uint16_t i = 0; i < width * height; i++)
 		Spi1_Send(color_tab, 2);
 
 }
