@@ -131,3 +131,28 @@ void ILI9341_DrawPixel(uint16_t posX, uint16_t posY, uint16_t width, uint16_t he
 		Spi1_Send(color_tab, 2);
 }
 
+
+void ILI9341_DrawImg(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, const uint8_t *img)
+{
+	uint8_t *imgPointer;
+	imgPointer = (uint8_t *)img;
+
+	if(ILI9341_setFrame(posX, posY, width, height) )
+		return;
+
+	uint8_t tmp_command = ILI9341_RAMWR;
+	SPI1_DC_COMMAND
+	Spi1_Send(&tmp_command, 1);
+	SPI1_DC_DATA;
+
+	uint8_t color_tab[2];
+	for(uint32_t i = 0; i< width*height; i++)
+	{
+		color_tab[0] = *imgPointer;
+		imgPointer++;
+		color_tab[1] = *imgPointer;
+		imgPointer++;
+
+		Spi1_Send(color_tab, 2);
+	}
+}

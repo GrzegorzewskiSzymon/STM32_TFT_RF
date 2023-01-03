@@ -18,7 +18,7 @@
 
 void ILI9341_Init();
 void ILI9341_DrawPixel(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, uint16_t color);
-
+void ILI9341_DrawImg(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, const uint8_t *img);
 //
 // Color definitions
 //
