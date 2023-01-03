@@ -86,12 +86,10 @@ void ILI9341_Init()
 	}
 }
 
-
-void ILI9341_DrawPixel(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, uint16_t color)
+uint8_t ILI9341_setFrame(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height)
 {
-
 	if (posX+width > TFT_WIDTH || posY+height > TFT_HEIGHT)
-		return;
+		return 1;
 
 	uint8_t posY_tab[4];
 	uint8_t posX_tab[4];
@@ -109,6 +107,18 @@ void ILI9341_DrawPixel(uint16_t posX, uint16_t posY, uint16_t width, uint16_t he
 	ILI9341_sendCommandAndData(ILI9341_CASET, posX_tab, 4);
 	ILI9341_sendCommandAndData(ILI9341_PASET, posY_tab, 4);
 
+	return 0;
+}
+//
+// Drawing functions
+//
+
+void ILI9341_DrawPixel(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, uint16_t color)
+{
+
+	if(ILI9341_setFrame(posX, posY, width, height) )
+		return;
+
 	uint8_t color_tab[2];
 	color_tab[0] =  color >> 8;
 	color_tab[1] =  color & 0xff;
@@ -119,6 +129,5 @@ void ILI9341_DrawPixel(uint16_t posX, uint16_t posY, uint16_t width, uint16_t he
 	SPI1_DC_DATA;
 	for(uint16_t i = 0; i < width * height; i++)
 		Spi1_Send(color_tab, 2);
-
 }
 
