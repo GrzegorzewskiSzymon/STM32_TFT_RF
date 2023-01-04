@@ -24,15 +24,15 @@ void ILI9341_Delay_ms(uint32_t delay)
 
 void ILI9341_sendCommandAndData(uint8_t command, uint8_t *data, uint32_t nrOfData)
 {
-	SPI1_DC_COMMAND
+	ILI9341_DC_COMMAND
 	Spi1_Send(&command, 1);
-	SPI1_DC_DATA;
+	ILI9341_DC_DATA;
 	Spi1_Send(data, nrOfData);
 }
 
 void ILI9341_sendCommand(uint8_t command)
 {
-	SPI1_DC_COMMAND
+	ILI9341_DC_COMMAND
 	Spi1_Send(&command, 1);
 }
 
@@ -49,12 +49,9 @@ void ILI9341_idleMode_ON()
 
 void ILI9341_seRotation(uint8_t rotation)
 {
+	ILI9341_sendCommand(ILI9341_MADCTL);
 
-	uint8_t tmp_command = ILI9341_MADCTL;
-	SPI1_DC_COMMAND
-	Spi1_Send(&tmp_command, 1);
-
-	SPI1_DC_DATA;
+	ILI9341_DC_DATA;
 
 	uint8_t data = 0;
 
@@ -174,10 +171,9 @@ void ILI9341_DrawPixel(uint16_t posX, uint16_t posY, uint16_t width, uint16_t he
 	color_tab[0] =  color >> 8;
 	color_tab[1] =  color & 0xff;
 
-	uint8_t tmp_command = ILI9341_RAMWR;
-	SPI1_DC_COMMAND
-	Spi1_Send(&tmp_command, 1);
-	SPI1_DC_DATA;
+	ILI9341_sendCommand(ILI9341_RAMWR);
+
+	ILI9341_DC_DATA;
 	for(uint32_t i = 0; i < width * height; i++)
 		Spi1_Send(color_tab, 2);
 }
@@ -191,11 +187,9 @@ void ILI9341_DrawImg(uint16_t posX, uint16_t posY, uint16_t width, uint16_t heig
 	if(ILI9341_setFrame(posX, posY, width, height) )
 		return;
 
-	uint8_t tmp_command = ILI9341_RAMWR;
-	SPI1_DC_COMMAND
-	Spi1_Send(&tmp_command, 1);
-	SPI1_DC_DATA;
+	ILI9341_sendCommand(ILI9341_RAMWR);
 
+	ILI9341_DC_DATA;
 	uint8_t color_tab[2];
 	for(uint32_t i = 0; i< width*height; i++)
 	{
