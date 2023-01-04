@@ -30,11 +30,25 @@ void ILI9341_sendCommandAndData(uint8_t command, uint8_t *data, uint32_t nrOfDat
 	Spi1_Send(data, nrOfData);
 }
 
+void ILI9341_sendCommand(uint8_t command)
+{
+	SPI1_DC_COMMAND
+	Spi1_Send(&command, 1);
+}
+
+
+void ILI9341_idleMode_OFF()
+{
+	ILI9341_sendCommand(0x38);
+}
+
+void ILI9341_idleMode_ON()
+{
+	ILI9341_sendCommand(0x39);
+}
 
 void ILI9341_seRotation(uint8_t rotation)
 {
-//	SPI1_DC_COMMAND
-//	Spi1_Send((uint8_t*)ILI9341_MADCTL, 1);
 
 	uint8_t tmp_command = ILI9341_MADCTL;
 	SPI1_DC_COMMAND
