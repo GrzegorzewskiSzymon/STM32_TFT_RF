@@ -21,22 +21,14 @@
 #endif
 
 
-//PA8 as ILI9341_RESET
-#define ILI9341_RESET_LOW GPIOA->BSRR |= GPIO_BSRR_BR8;
-#define ILI9341_RESET_HIG GPIOA->BSRR |= GPIO_BSRR_BS8;
-
-//PA9 as D/C
-#define ILI9341_DC_COMMAND GPIOA->BSRR |= GPIO_BSRR_BR9; //LOW  - Command
-#define ILI9341_DC_DATA    GPIOA->BSRR |= GPIO_BSRR_BS9; //HIGH - Data
-
-
 //
-// functions
+// Functions
 //
+
 void ILI9341_Init();
 void ILI9341_DrawPixel(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, uint16_t color);
 void ILI9341_DrawImg(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, const uint8_t *img);
-void ILI9341_seRotation(uint8_t rotation);
+void ILI9341_setRotation(uint8_t rotation);
 
 // idle mode simplify displayed colors
 void ILI9341_idleMode_OFF();
@@ -45,6 +37,7 @@ void ILI9341_idleMode_ON();
 //
 // Color definitions
 //
+
 #define ILI9341_BLACK 0x0000       ///<   0,   0,   0
 #define ILI9341_NAVY 0x000F        ///<   0,   0, 123
 #define ILI9341_DARKGREEN 0x03E0   ///<   0, 125,   0
@@ -69,6 +62,7 @@ void ILI9341_idleMode_ON();
 //
 // ILI9341 registers address
 //
+
 #define ILI9341_NOP     0x00 ///< No-op register
 #define ILI9341_SWRESET 0x01 ///< Software reset register
 #define ILI9341_RDDID   0x04 ///< Read display identification information

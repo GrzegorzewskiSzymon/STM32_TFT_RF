@@ -21,19 +21,18 @@ void ILI9341_Delay_ms(uint32_t delay)
 
 }
 
-
 void ILI9341_sendCommandAndData(uint8_t command, uint8_t *data, uint32_t nrOfData)
 {
 	ILI9341_DC_COMMAND
-	Spi1_Send(&command, 1);
+	Spi_ILI9341_Send(&command, 1);
 	ILI9341_DC_DATA;
-	Spi1_Send(data, nrOfData);
+	Spi_ILI9341_Send(data, nrOfData);
 }
 
 void ILI9341_sendCommand(uint8_t command)
 {
 	ILI9341_DC_COMMAND
-	Spi1_Send(&command, 1);
+	Spi_ILI9341_Send(&command, 1);
 }
 
 
@@ -47,7 +46,7 @@ void ILI9341_idleMode_ON()
 	ILI9341_sendCommand(0x39);
 }
 
-void ILI9341_seRotation(uint8_t rotation)
+void ILI9341_setRotation(uint8_t rotation)
 {
 	ILI9341_sendCommand(ILI9341_MADCTL);
 
@@ -76,7 +75,7 @@ void ILI9341_seRotation(uint8_t rotation)
 		data = 0b11101000; // MY MX MV BGR
 		break;
 	}
-	Spi1_Send(&data, 1);
+	Spi_ILI9341_Send(&data, 1);
 }
 
 static const uint8_t ILI9341_InitializationData[] =
@@ -131,7 +130,7 @@ void ILI9341_Init()
 			ILI9341_Delay_ms(150);
 		}
 	}
-	ILI9341_seRotation(ILI9341_ROTATION);
+	ILI9341_setRotation(ILI9341_ROTATION);
 }
 
 uint8_t ILI9341_setFrame(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height)
@@ -175,7 +174,7 @@ void ILI9341_DrawPixel(uint16_t posX, uint16_t posY, uint16_t width, uint16_t he
 
 	ILI9341_DC_DATA;
 	for(uint32_t i = 0; i < width * height; i++)
-		Spi1_Send(color_tab, 2);
+		Spi_ILI9341_Send(color_tab, 2);
 }
 
 
@@ -198,6 +197,6 @@ void ILI9341_DrawImg(uint16_t posX, uint16_t posY, uint16_t width, uint16_t heig
 		color_tab[1] = *imgPointer;
 		imgPointer++;
 
-		Spi1_Send(color_tab, 2);
+		Spi_ILI9341_Send(color_tab, 2);
 	}
 }
