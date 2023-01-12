@@ -13,7 +13,7 @@
 // SPI
 //
 
-void SPI_XPT2046_Setup()
+void Spi_XPT2046_Setup()
 {
 	Spi2_Setup();
 }
