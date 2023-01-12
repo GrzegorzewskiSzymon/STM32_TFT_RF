@@ -25,6 +25,9 @@
 // Functions
 //
 
+void Spi_ILI9341_Setup();
+void Spi_ILI9341_Send(uint8_t *byte, uint32_t length);
+
 void ILI9341_Init();
 void ILI9341_DrawPixel(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, uint16_t color);
 void ILI9341_DrawImg(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, const uint8_t *img);

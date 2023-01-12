@@ -7,10 +7,22 @@
 
 #include <stdint.h>
 #include "stm32g431xx.h"
-#include "../SPI/Spi.h"
 #include "TFT_ILI9341.h"
 #include "../RegistersConfig/RegistersConfig.h"
 
+//
+// SPI
+//
+
+void Spi_ILI9341_Setup()
+{
+	Spi1_Setup();
+}
+
+void Spi_ILI9341_Send(uint8_t *byte, uint32_t length)
+{
+	Spi1_Send(byte, length);
+}
 
 void ILI9341_Delay_ms(uint32_t delay)
 {
