@@ -23,3 +23,11 @@ void Spi_XPT2046_Send(uint8_t *byte, uint32_t length)
 	Spi2_Send(byte, length);
 }
 
+//
+// IRQ
+//
+
+void XPT2046_IRQ_Setup()
+{
+	EXTI3_Setup();
+}
