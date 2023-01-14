@@ -22,7 +22,15 @@ void Spi_XPT2046_Send(uint8_t *byte, uint32_t length)
 {
 	Spi2_Send(byte, length);
 }
+uint8_t Spi_XPT2046_Receive(uint8_t *byte)
+{
+	return Spi2_Receive_8b(byte);
+}
 
+void Spi_XPT2046_Transreceive(uint8_t *dataTx, uint16_t lengthTx, uint8_t *dataRx, uint16_t lengthRx )
+{
+	Spi2_Transreceive_8b(dataTx, lengthTx, dataRx, lengthRx);
+}
 
 static uint8_t ChannelSettingsX, ChannelSettingsY;
 static uint8_t SendBuffer[5];
@@ -59,7 +67,10 @@ void XPT2046_Setup()
 
 }
 
-
+void XPT2046_GetRawData()
+{
+	Spi2_Transreceive_8b(SendBuffer, 5, ReceiveBuffer, 5);
+}
 
 
 
