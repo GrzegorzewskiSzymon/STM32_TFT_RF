@@ -8,6 +8,7 @@
 #include "stm32g431xx.h"
 #include "XPT2046.h"
 #include "../RegistersConfig/RegistersConfig.h"
+#include "../TFT_ILI9341/TFT_ILI9341.h"
 
 //
 // SPI
@@ -67,17 +68,35 @@ void XPT2046_Setup()
 
 }
 
+#if (ILI9341_ROTATION == 0)
+CalibData_t CalibrationData = {-.0009337, -.0636839, 250.342, -.0889775, -.00118110, 356.538}; // default calibration data
+#endif
+#if (ILI9341_ROTATION == 1)
+CalibData_t CalibrationData = {-.0885542, .0016532, 349.800, .0007309, .06543699, -15.290}; // default calibration data
+#endif
+#if (ILI9341_ROTATION == 2)
+CalibData_t CalibrationData = {.0006100, .0647828, -13.634, .0890609, .0001381, -35.73}; // default calibration data
+#endif
+#if (ILI9341_ROTATION == 3)
+CalibData_t CalibrationData = {.0902216, .0006510, -38.657, -.0010005, -.0667030, 258.08}; // default calibration data
+#endif
+
 void XPT2046_GetRawData()
 {
 	Spi2_Transreceive_8b(SendBuffer, 5, ReceiveBuffer, 5);
 }
 
+void XPT2046_ReadTouchPoint(uint16_t *x, uint16_t *y)
+{
+	XPT2046_GetRawData();
+	uint16_t _x, _y;
+	_x = (uint16_t)((ReceiveBuffer[0]<<8) | (ReceiveBuffer[1]));
+	_y = (uint16_t)((ReceiveBuffer[2]<<8) | (ReceiveBuffer[3]));
 
+	*x = CalibrationData.alpha_x * _x + CalibrationData.beta_x * _y + CalibrationData.delta_x;
+	*y= CalibrationData.alpha_y * _x + CalibrationData.beta_y * _y + CalibrationData.delta_y;
 
-
-
-
-
+}
 
 
 //
