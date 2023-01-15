@@ -8,7 +8,8 @@
 #ifndef LIBRARIES_TOUCHSCREEN_XPT2046_H_
 #define LIBRARIES_TOUCHSCREEN_XPT2046_H_
 
-
+#define XPT2046_MAX_SAMPLES 10
+#define XPT2046_SAMPLE_INTERVAL 5
 
 typedef struct
 {
@@ -21,13 +22,19 @@ typedef struct
 } CalibData_t;
 
 
+typedef enum
+{
+	XPT2046_IDLE,		 // 0
+	XPT2046_PRESAMPLING, // 1
+	XPT2046_TOUCHED,	 // 2
+	XPT2046_RELEASED	 // 3
+} XPT2046_State;
 
-
+extern volatile XPT2046_State TouchState;
 
 void Spi_XPT2046_Setup();
 void Spi_XPT2046_Send(uint8_t *byte, uint32_t length);
 void XPT2046_IRQ_Setup();
 void XPT2046_Setup();
-void XPT2046_ReadTouchPoint(uint16_t *x, uint16_t *y);
-void XPT2046_GetRawData();
+void XPT2046_Task();
 #endif /* LIBRARIES_TOUCHSCREEN_XPT2046_H_ */

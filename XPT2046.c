@@ -98,6 +98,73 @@ void XPT2046_ReadTouchPoint(uint16_t *x, uint16_t *y)
 
 }
 
+volatile XPT2046_State TouchState;
+uint32_t SampleTimer;
+uint8_t SampleCounter;
+uint16_t TouchSamples[2][XPT2046_MAX_SAMPLES];
+
+void XPT2046_Task()
+{
+	switch(TouchState)
+	{
+		case XPT2046_IDLE:
+			// Do nothing in ILDE - we are waiting for interrupt
+			break;
+
+		case XPT2046_PRESAMPLING:
+			if((ms - SampleTimer) > XPT2046_SAMPLE_INTERVAL)
+			{
+				//wait additional 1ms to make sure that (XPT2046_PENIRQ_IS_HIGH) can check if touch panel isn't touched anymore
+				if((ms - SampleTimer) > (XPT2046_SAMPLE_INTERVAL+1))
+				{
+					XPT2046_GetRawData();
+					XPT2046_ReadTouchPoint(&TouchSamples[0][SampleCounter], &TouchSamples[1][SampleCounter]);
+					SampleCounter++;
+					if(SampleCounter == XPT2046_MAX_SAMPLES)
+					{
+						SampleCounter = 0;
+						TouchState = XPT2046_TOUCHED;
+					}
+
+					SampleTimer = ms;
+				}
+
+				if(XPT2046_PENIRQ_IS_HIGH)
+				{
+					TouchState = XPT2046_RELEASED;
+				}
+			}
+			break;
+
+		case XPT2046_TOUCHED:
+			if((ms - SampleTimer) > XPT2046_SAMPLE_INTERVAL)
+			{
+				//wait additional 1ms to make sure that (XPT2046_PENIRQ_IS_HIGH) can check if touch panel isn't touched anymore
+				if((ms - SampleTimer) > (XPT2046_SAMPLE_INTERVAL+1))
+				{
+					XPT2046_GetRawData();
+					XPT2046_ReadTouchPoint(&TouchSamples[0][SampleCounter], &TouchSamples[1][SampleCounter]);
+					SampleCounter++;
+
+					SampleCounter %= XPT2046_MAX_SAMPLES;
+
+					SampleTimer = ms;
+				}
+
+				if(XPT2046_PENIRQ_IS_HIGH)
+				{
+					TouchState = XPT2046_RELEASED;
+				}
+			}
+
+			break;
+		case XPT2046_RELEASED:
+
+			TouchState = XPT2046_IDLE;
+			SampleCounter = 0;
+			break;
+	}
+}
 
 //
 // IRQ
