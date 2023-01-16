@@ -1,0 +1,16 @@
+.cproject
+.project
+.settings/
+STM32G431RBTX_FLASH.ld
+Startup/
+Inc/cmsis_compiler.h
+Inc/cmsis_gcc.h
+Inc/cmsis_version.h
+Inc/core_cm4.h
+Inc/mpu_armv7.h
+Inc/stm32g431xx.h
+Inc/system_stm32g4xx.h
+Src/syscalls.c
+Src/sysmem.c
+Debug/
+Project_03_ILI9341_SPI Debug.launch
