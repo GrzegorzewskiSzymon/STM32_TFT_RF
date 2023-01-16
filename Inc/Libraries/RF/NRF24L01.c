@@ -16,7 +16,7 @@ void Spi_NRF24L01_Setup()
 
 void Spi_NRF24L01_Receive(uint8_t *data)
 {
-	SPI3_Receive_8b(data);
+	Spi3_Receive_8b(data);
 }
 
 void Spi_NRF24L01_Send(uint8_t *byte, uint32_t length)
@@ -26,5 +26,12 @@ void Spi_NRF24L01_Send(uint8_t *byte, uint32_t length)
 
 void Spi_NRF24L01_Transreceive(uint8_t *dataTx, uint16_t lengthTx, uint8_t *dataRx, uint16_t lengthRx)
 {
-	SPI3_Transreceive_8b(dataTx, lengthTx, dataRx, lengthRx);
+	Spi3_Transreceive_8b(dataTx, lengthTx, dataRx, lengthRx);
+}
+
+
+void NRF24L01_Setup()
+{
+
+
 }

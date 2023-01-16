@@ -19,6 +19,39 @@ void GPIOA_Setup()
 
 	// PA5
 	GPIOA->MODER  &= ~(1<<11);// Output
+
+
+	//
+	// SPI 3
+	//
+
+	// PA4 as SCK
+	GPIOA->MODER &= ~ GPIO_MODER_MODE4_0; // Alternate function mode
+	GPIOA->AFR[0] |= (6<<GPIO_AFRL_AFSEL4_Pos); //AF6
+}
+
+
+void GPIOC_Setup()
+{
+	RCC->AHB2ENR |= RCC_AHB2ENR_GPIOCEN;
+
+
+	//
+	// SPI 3
+	//
+
+	// PC10 as SCK
+	GPIOC->MODER &= ~ GPIO_MODER_MODE10_0; // Alternate function mode
+	GPIOC->AFR[1] |= (6<<GPIO_AFRH_AFSEL10_Pos); //AF6
+
+	// PC11 as MISO
+	GPIOC->MODER &= ~ GPIO_MODER_MODE11_0; // Alternate function mode
+	GPIOC->AFR[1] |= (6<<GPIO_AFRH_AFSEL11_Pos); //AF6
+
+	// PC12 as MOSI
+	GPIOC->MODER &= ~ GPIO_MODER_MODE12_0; // Alternate function mode
+	GPIOC->AFR[1] |= (6<<GPIO_AFRH_AFSEL12_Pos); //AF6
+
 }
 
 //
@@ -137,7 +170,7 @@ void Spi3_Send(uint8_t *byte, uint32_t length)
 	while (((SPI3->SR)&(1<<7))) {};
 }
 
-uint8_t SPI3_Receive_8b(uint8_t *data)
+uint8_t Spi3_Receive_8b(uint8_t *data)
 {
 	if(SPI3->SR & SPI_SR_RXNE) // if there is data
 	{
@@ -148,7 +181,7 @@ uint8_t SPI3_Receive_8b(uint8_t *data)
 	return 0 ;
 }
 
-void SPI3_Transreceive_8b(uint8_t *dataTx, uint16_t lengthTx, uint8_t *dataRx, uint16_t lengthRx )
+void Spi3_Transreceive_8b(uint8_t *dataTx, uint16_t lengthTx, uint8_t *dataRx, uint16_t lengthRx )
 {
     while (lengthTx > 0 || lengthRx > 0)
     {

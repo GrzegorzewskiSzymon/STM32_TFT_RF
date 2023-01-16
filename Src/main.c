@@ -8,7 +8,7 @@ int main(void)
 	ClockFrequency_Setup();
 	Systick_Setup();
 	GPIOA_Setup();
-
+	GPIOC_Setup();
 
 
 
