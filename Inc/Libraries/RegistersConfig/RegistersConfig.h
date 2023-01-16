@@ -15,6 +15,11 @@
 #define PA5_LOW  GPIOA->BSRR = 1<<21
 #define PA5_HIGH GPIOA->BSRR = 1<<5
 
+// NRF24L01; PC2 as Chip Enable (CE)
+#define NRF24L01_CE_HIGH GPIO->BSRR = 1<<2
+#define NRF24L01_CE_LOW  GPIO->BSRR = 1<<18
+
+
 //
 // Functions
 //

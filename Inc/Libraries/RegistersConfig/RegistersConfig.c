@@ -25,7 +25,7 @@ void GPIOA_Setup()
 	// SPI 3
 	//
 
-	// PA4 as SCK
+	// PA4 as CS
 	GPIOA->MODER &= ~ GPIO_MODER_MODE4_0; // Alternate function mode
 	GPIOA->AFR[0] |= (6<<GPIO_AFRL_AFSEL4_Pos); //AF6
 }
@@ -52,6 +52,11 @@ void GPIOC_Setup()
 	GPIOC->MODER &= ~ GPIO_MODER_MODE12_0; // Alternate function mode
 	GPIOC->AFR[1] |= (6<<GPIO_AFRH_AFSEL12_Pos); //AF6
 
+	// PC3 as IRQ
+	GPIOC->MODER &= ~ (GPIO_MODER_MODE3_0 |GPIO_MODER_MODE3_1 ); // Input
+
+	//PC2 as Chip Enable (CE)
+	GPIOC->MODER  &= ~GPIO_MODER_MODE2_1;// Output
 }
 
 //
