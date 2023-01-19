@@ -16,9 +16,14 @@
 #define PA5_HIGH GPIOA->BSRR = 1<<5
 
 // NRF24L01; PC2 as Chip Enable (CE)
-#define NRF24L01_CE_HIGH GPIO->BSRR = 1<<2
-#define NRF24L01_CE_LOW  GPIO->BSRR = 1<<18
+#define NRF24L01_CE_HIGH GPIOC->BSRR = 1<<2
+#define NRF24L01_CE_LOW  GPIOC->BSRR = 1<<18
 
+#define NRF24L01_CS_HIGH GPIOA->BSRR = 1<<4
+#define NRF24L01_CS_LOW  GPIOA->BSRR = 1<<20
+
+#define SPI_NRF24L01_ENABLE  SPI3->CR1 |=  SPI_CR1_SPE //SPI  enable
+#define SPI_NRF24L01_DISABLE SPI3->CR1 &=~ SPI_CR1_SPE //SPI disable
 
 //
 // Functions

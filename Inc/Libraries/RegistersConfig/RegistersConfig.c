@@ -26,8 +26,9 @@ void GPIOA_Setup()
 	//
 
 	// PA4 as CS
-	GPIOA->MODER &= ~ GPIO_MODER_MODE4_0; // Alternate function mode
-	GPIOA->AFR[0] |= (6<<GPIO_AFRL_AFSEL4_Pos); //AF6
+	GPIOA->MODER &= ~ GPIO_MODER_MODE4_1; // GPOM
+
+
 }
 
 
@@ -136,7 +137,7 @@ void Systick_Setup()
 
 
 //
-// SPI 2
+// SPI 3
 //
 
 void Spi3_Setup()
@@ -152,7 +153,7 @@ void Spi3_Setup()
 	SPI3->CR1 |= (4<<SPI_CR1_BR_Pos);	//fPCLK/32 = 5,3125Mhz
 	SPI3->CR1 |= (1<<8) | (1<<9);  		//Software Slave Management
 	SPI3->CR2 = 0;
-	SPI3->CR2 |= SPI_CR2_FRXTH;//RXNE event is generated if the FIFO level is greater than or equal to 1/4 (8-bit)
+//	SPI3->CR2 |= SPI_CR2_FRXTH;//RXNE event is generated if the FIFO level is greater than or equal to 1/4 (8-bit)
 }
 
 void Spi3_Send(uint8_t *byte, uint32_t length)
@@ -197,6 +198,7 @@ void Spi3_Transreceive_8b(uint8_t *dataTx, uint16_t lengthTx, uint8_t *dataRx, u
     			*((volatile uint8_t *) &SPI3->DR) = (*dataTx);//Load the data into the Data Register
     			dataTx++;
     			lengthTx--;
+    			while (((SPI3->SR)&(1<<7))) {};
     		}
     	}
     	if(lengthRx > 0)

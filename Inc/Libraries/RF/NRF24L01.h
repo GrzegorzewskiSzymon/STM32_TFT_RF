@@ -9,7 +9,9 @@
 #define LIBRARIES_RF_NRF24L01_H_
 
 void Spi_NRF24L01_Setup();
-
+void NRF24L01_Setup();
+void NRF24L01_Mode_Tx(uint8_t *address, uint8_t channel);
+uint8_t NRF24L01_Transmit(uint8_t *data);
 
 //
 // memory map
