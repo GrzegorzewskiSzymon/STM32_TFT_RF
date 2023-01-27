@@ -13,6 +13,9 @@ void NRF24L01_Setup();
 void NRF24L01_Mode_Tx(uint8_t *address, uint8_t channel);
 uint8_t NRF24L01_Transmit(uint8_t *data);
 
+void NRF24L01_Receive(uint8_t *data);
+uint8_t NRF24L01_isDataAvailable(int pipenum);
+void NRF24L01_Mode_Rx(uint8_t *Address, uint8_t channel);
 //
 // memory map
 //

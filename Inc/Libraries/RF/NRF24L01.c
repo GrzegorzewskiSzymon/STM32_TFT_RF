@@ -57,6 +57,7 @@ uint8_t NRF24L01_ReadReg(uint8_t reg)
 	uint8_t dataRx[3];
 	NRF24L01_CS_LOW;
 	uint8_t emptyBuff[5] = {reg, 0, 0, 0, 0};
+	emptyBuff[0] = reg;
 	Spi_NRF24L01_Transreceive(emptyBuff, 5, dataRx, 3);
 
 	NRF24L01_CS_HIGH;
@@ -186,4 +187,76 @@ uint8_t NRF24L01_Transmit(uint8_t *data)
 		return 0;
 	}
 	return 1;
+}
+
+void NRF24L01_Mode_Rx(uint8_t *Address, uint8_t channel)
+{
+	//Disable the hip;
+	NRF24L01_CE_LOW;
+
+	NRF24L01_Reset(STATUS);
+
+	NRF24L01_WriteReg(RF_CH, channel);  // select the channel
+
+	// select data pipe 1
+	uint8_t en_rxaddr = NRF24L01_ReadReg(EN_RXADDR);
+	en_rxaddr = en_rxaddr | (1<<1);
+	NRF24L01_WriteReg(EN_RXADDR, en_rxaddr);
+
+	NRF24L01_WriteReg_Multi(RX_ADDR_P1, Address, 5);  // Write the Pipe1 address
+//	NRF24L01_WriteReg(RX_ADDR_P2, 0xEE);  // Write the Pipe2 LSB address
+
+	NRF24L01_WriteReg(RX_PW_P1, 32);   // 32 bit payload size for pipe 2
+
+
+	// power up the device in Rx mode
+	uint8_t config = NRF24L01_ReadReg(CONFIG);
+	config = config | (1<<1) | (1<<0);
+	NRF24L01_WriteReg(CONFIG, config);
+
+	//Enable the hip;
+	NRF24L01_CE_HIGH;
+}
+
+uint8_t NRF24L01_isDataAvailable(int pipenum)
+{
+	uint8_t status = NRF24L01_ReadReg(STATUS);
+
+	if ((status&(1<<6))&&(status&(pipenum<<1)))
+	{
+
+		NRF24L01_WriteReg(STATUS, (1<<6));
+
+		return 1;
+	}
+
+	return 0;
+}
+
+uint8_t blankData[32];
+void NRF24L01_Receive(uint8_t *data)
+{
+	uint8_t cmdtosend = 0;
+
+	// select the device
+	NRF24L01_CS_LOW;;
+
+	// payload command
+	cmdtosend = R_RX_PAYLOAD;
+	Spi_NRF24L01_Send(&cmdtosend, 1);
+
+	// Receive the payload
+	Spi3_Transreceive_8b(blankData, 32, data, 32);
+//	HAL_SPI_Receive(NRF24_SPI, data, 32, 1000);///////////////////////////////////////////////
+
+	// Unselect the device
+	NRF24L01_CS_HIGH;
+
+	uint64_t tmp_ms = ms;
+	while((ms - tmp_ms) < 2)
+	{
+	}
+
+	cmdtosend = FLUSH_RX;
+	NRF24L01_SendCommand(cmdtosend);
 }
