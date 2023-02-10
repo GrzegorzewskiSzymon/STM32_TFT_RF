@@ -20,15 +20,6 @@ void GPIOA_Setup()
 	// PA5
 	GPIOA->MODER  &= ~(1<<11);// Output
 
-
-	//
-	// SPI 3
-	//
-
-	// PA4 as CS
-	GPIOA->MODER &= ~ GPIO_MODER_MODE4_1; // GPOM
-
-
 }
 
 
@@ -38,8 +29,11 @@ void GPIOC_Setup()
 
 
 	//
-	// SPI 3
+	// SPI 3 - NRF24L01
 	//
+
+	// PC0 as CS
+	GPIOC->MODER &= ~ GPIO_MODER_MODE0_1; // GPOM
 
 	// PC10 as SCK
 	GPIOC->MODER &= ~ GPIO_MODER_MODE10_0; // Alternate function mode
@@ -135,7 +129,6 @@ void Systick_Setup()
  				   |  (SysTick_CTRL_TICKINT_Msk);  //Exception request
 }
 
-
 //
 // SPI 3
 //
@@ -153,12 +146,13 @@ void Spi3_Setup()
 	SPI3->CR1 |= (4<<SPI_CR1_BR_Pos);	//fPCLK/32 = 5,3125Mhz
 	SPI3->CR1 |= (1<<8) | (1<<9);  		//Software Slave Management
 	SPI3->CR2 = 0;
-//	SPI3->CR2 |= SPI_CR2_FRXTH;//RXNE event is generated if the FIFO level is greater than or equal to 1/4 (8-bit)
+	SPI3->CR2 |= SPI_CR2_FRXTH;//RXNE event is generated if the FIFO level is greater than or equal to 1/4 (8-bit)
 }
 
 void Spi3_Send(uint8_t *byte, uint32_t length)
 {
 
+	SPI_NRF24L01_ENABLE;
     while (length > 0U)
     {
     	//not sure if necessary
@@ -174,48 +168,49 @@ void Spi3_Send(uint8_t *byte, uint32_t length)
     //not sure if necessary
 	//Wait for BSY bit to Reset -> This will indicate that SPI is not busy in communication
 	while (((SPI3->SR)&(1<<7))) {};
+    SPI_NRF24L01_DISABLE;
 }
 
 uint8_t Spi3_Receive_8b(uint8_t *data)
 {
+	SPI_NRF24L01_ENABLE;
 	if(SPI3->SR & SPI_SR_RXNE) // if there is data
 	{
-		*data = SPI3->DR;
-
+		*data = (uint8_t)SPI3->DR;
+		SPI_NRF24L01_DISABLE;
 		return 1;
 	}
+	SPI_NRF24L01_DISABLE;
 	return 0 ;
 }
 
 void Spi3_Transreceive_8b(uint8_t *dataTx, uint16_t lengthTx, uint8_t *dataRx, uint16_t lengthRx )
 {
-    while (lengthTx > 0 || lengthRx > 0)
+	SPI_NRF24L01_ENABLE;
+    while (lengthTx > 0)
     {
-    	if(lengthTx > 0)
+    	if (((SPI3->SR)&(1<<1)))//Wait for TXE bit to set -> This will indicate that the buffer is empty
     	{
-    		if (((SPI3->SR)&(1<<1)))//Wait for TXE bit to set -> This will indicate that the buffer is empty
-    		{
-    			*((volatile uint8_t *) &SPI3->DR) = (*dataTx);//Load the data into the Data Register
-    			dataTx++;
-    			lengthTx--;
-    			while (((SPI3->SR)&(1<<7))) {};
-    		}
+    		*((volatile uint8_t *) &SPI3->DR) = (*dataTx);//Load the data into the Data Register
+    		dataTx++;
+    		lengthTx--;
+    		while (((SPI3->SR)&(1<<7))) {};
     	}
+
     	if(lengthRx > 0)
     	{
-    		if(SPI3->SR & SPI_SR_RXNE) // if there is data
-    		{
-    			*dataRx = SPI3->DR;
+    		while( ((SPI3->SR)&(1<<7)) || (!((SPI3->SR & SPI_SR_RXNE))) ){}
+
+    			*dataRx = (uint8_t)SPI3->DR;
     			dataRx++;
     			lengthRx--;
-    		}
     	}
     }
+    SPI_NRF24L01_DISABLE;
 }
 
-
 //
-// IRQ Handlers
+// INTERRUPT HANDLERS
 //
 
 //SYSTICK
