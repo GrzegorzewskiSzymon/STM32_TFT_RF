@@ -4,9 +4,6 @@
 #include "../Inc/Libraries/RF/NRF24L01.h"
 
 
-//uint8_t txAddress[] = {0xEE, 0xDD, 0xCC, 0xBB, 0xAA};
-//uint8_t txData[] = "Hi there";
-
 uint8_t rxAddress[] = {0xEE, 0xDD, 0xCC, 0xBB, 0xAA};
 uint8_t rxBuff[32];
 
@@ -26,7 +23,6 @@ int main(void)
 
 
 	NRF24L01_Setup();
-//	NRF24L01_Mode_Tx(txAddress, 10);
 	NRF24L01_Mode_Rx(rxAddress, 10);
 
 	while(1)
@@ -41,19 +37,7 @@ int main(void)
 			}
 
 		}
-//		if(NRF24L01_Transmit(txData))
-//		{
-//
-//		}
-//		else
-//		{
-//			PA5_HIGH;
-//		}
-//
-//		uint64_t tmp_ms = ms;
-//		while((ms - tmp_ms) < 2000)
-//		{
-//		}
+
 
 	}
 }
