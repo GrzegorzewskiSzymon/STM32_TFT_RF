@@ -17,8 +17,16 @@ void GPIOA_Setup()
 {
 	RCC->AHB2ENR |= RCC_AHB2ENR_GPIOAEN;
 
-	// PA5
-	GPIOA->MODER  &= ~(1<<11);// Output
+
+	//
+	// PowerManagement
+	//
+
+	// PA0 connected to battery voltage divider output
+	GPIOA->MODER &= ~ (GPIO_MODER_MODE0_0 | GPIO_MODER_MODE0_1 ); // Input
+
+	// PA15 connected to gate of mosfet
+	GPIOA->MODER &= ~ GPIO_MODER_MODE15_1; // GPOM
 
 }
 
@@ -130,7 +138,7 @@ void Systick_Setup()
 }
 
 //
-// SPI 3
+// SPI 3 - NRF24L01
 //
 
 void Spi3_Setup()
