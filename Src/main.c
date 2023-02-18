@@ -2,6 +2,7 @@
 #include "stm32g431xx.h"
 #include "../Inc/Libraries/RegistersConfig/RegistersConfig.h"
 #include "../Inc/Libraries/RF/NRF24L01.h"
+#include "../Inc/Libraries/PowerManagement/BatteryManagement.h"
 
 
 uint8_t rxAddress[] = {0xEE, 0xDD, 0xCC, 0xBB, 0xAA};
@@ -21,6 +22,7 @@ int main(void)
 
 	SPI_NRF24L01_ENABLE;
 
+	MOSFETS_ON;
 
 	NRF24L01_Setup();
 	NRF24L01_Mode_Rx(rxAddress, 10);

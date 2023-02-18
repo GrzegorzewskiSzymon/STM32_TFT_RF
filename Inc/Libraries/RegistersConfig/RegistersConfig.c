@@ -170,51 +170,44 @@ void Spi3_Send(uint8_t *byte, uint32_t length)
     		byte++;
     		length--;
     	}
-
     }
-
     //not sure if necessary
 	//Wait for BSY bit to Reset -> This will indicate that SPI is not busy in communication
 	while (((SPI3->SR)&(1<<7))) {};
     SPI_NRF24L01_DISABLE;
 }
 
-uint8_t Spi3_Receive_8b(uint8_t *data)
+uint8_t Spi3_Read8()
 {
 	SPI_NRF24L01_ENABLE;
-	if(SPI3->SR & SPI_SR_RXNE) // if there is data
-	{
-		*data = (uint8_t)SPI3->DR;
-		SPI_NRF24L01_DISABLE;
-		return 1;
-	}
-	SPI_NRF24L01_DISABLE;
-	return 0 ;
+    while(!(SPI3->SR & SPI_SR_TXE));
+    *(volatile uint8_t *)&SPI3->DR = 0;
+    while (!(SPI3->SR & SPI_SR_RXNE));
+    return *(volatile uint8_t *)&SPI3->DR;
+    SPI_NRF24L01_DISABLE;
 }
 
-void Spi3_Transreceive_8b(uint8_t *dataTx, uint16_t lengthTx, uint8_t *dataRx, uint16_t lengthRx )
+void Spi3_Read8_Multi(uint8_t *dataRx, uint16_t cnt)
 {
 	SPI_NRF24L01_ENABLE;
-    while (lengthTx > 0)
-    {
-    	if (((SPI3->SR)&(1<<1)))//Wait for TXE bit to set -> This will indicate that the buffer is empty
-    	{
-    		*((volatile uint8_t *) &SPI3->DR) = (*dataTx);//Load the data into the Data Register
-    		dataTx++;
-    		lengthTx--;
-    		while (((SPI3->SR)&(1<<7))) {};
-    	}
+	for(uint8_t i= 0; i < cnt; i++)
+	{
+    while(!(SPI3->SR & SPI_SR_TXE));//Wait while buffer not empty
+    *(volatile uint8_t *)&SPI3->DR = 0;
+    while (!(SPI3->SR & SPI_SR_RXNE));
+    dataRx[i] = *(volatile uint8_t *)&SPI3->DR;
+	}
+	SPI_NRF24L01_DISABLE;
+}
 
-    	if(lengthRx > 0)
-    	{
-    		while( ((SPI3->SR)&(1<<7)) || (!((SPI3->SR & SPI_SR_RXNE))) ){}
-
-    			*dataRx = (uint8_t)SPI3->DR;
-    			dataRx++;
-    			lengthRx--;
-    	}
-    }
-    SPI_NRF24L01_DISABLE;
+void Spi3_ClearRxBuff()
+{
+	SPI_NRF24L01_ENABLE;
+	while(SPI3->SR & SPI_SR_RXNE) //while receive buffer not empty
+	{
+		*(volatile uint8_t *)&SPI3->DR; //read data
+	}
+	SPI_NRF24L01_DISABLE;
 }
 
 //

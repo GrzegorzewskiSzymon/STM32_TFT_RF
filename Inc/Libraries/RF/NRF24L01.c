@@ -17,17 +17,12 @@ void Spi_NRF24L01_Setup()
 
 void Spi_NRF24L01_Receive(uint8_t *data)
 {
-	Spi3_Receive_8b(data);
+	*data = Spi3_Read8();
 }
 
 void Spi_NRF24L01_Send(uint8_t *byte, uint32_t length)
 {
 	Spi3_Send(byte, length);
-}
-
-void Spi_NRF24L01_Transreceive(uint8_t *dataTx, uint16_t lengthTx, uint8_t *dataRx, uint16_t lengthRx)
-{
-	Spi3_Transreceive_8b(dataTx, lengthTx, dataRx, lengthRx);
 }
 
 void NRF24L01_WriteReg(uint8_t reg, uint8_t data)
@@ -51,27 +46,20 @@ void NRF24L01_WriteReg_Multi(uint8_t reg, uint8_t *data, uint16_t size)
 	NRF24L01_CS_HIGH;
 }
 
-//Weird but its working
 uint8_t NRF24L01_ReadReg(uint8_t reg)
 {
-	uint8_t dataRx[3];
+	uint8_t dataRx;
 	NRF24L01_CS_LOW;
-	uint8_t emptyBuff[5] = {reg, 0, 0, 0, 0};
-	emptyBuff[0] = reg;
-	Spi_NRF24L01_Transreceive(emptyBuff, 5, dataRx, 3);
+
+	Spi_NRF24L01_Send(&reg, 1);
+	Spi3_ClearRxBuff();		//clear the reading STATUS register - not important
+	dataRx = Spi3_Read8();
 
 	NRF24L01_CS_HIGH;
-	return dataRx[2];
+	return dataRx;
 
 }
 
-//Not tested
-void NRF24L01_ReadReg_Multi(uint8_t reg, uint8_t *data, uint16_t size)
-{
-	NRF24L01_CS_LOW;
-	Spi_NRF24L01_Transreceive(&reg, 1, data, size);
-	NRF24L01_CS_HIGH;
-}
 
 void NRF24L01_SendCommand(uint8_t cmd)
 {
@@ -245,9 +233,12 @@ void NRF24L01_Receive(uint8_t *data)
 	cmdtosend = R_RX_PAYLOAD;
 	Spi_NRF24L01_Send(&cmdtosend, 1);
 
+	SPI_NRF24L01_ENABLE;
+	Spi3_ClearRxBuff();
+
 	// Receive the payload
-	Spi3_Transreceive_8b(blankData, 32, data, 32);
-//	HAL_SPI_Receive(NRF24_SPI, data, 32, 1000);///////////////////////////////////////////////
+	Spi3_Read8_Multi(data, 32);
+	SPI_NRF24L01_DISABLE;
 
 	// Unselect the device
 	NRF24L01_CS_HIGH;

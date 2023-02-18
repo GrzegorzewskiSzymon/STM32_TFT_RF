@@ -38,6 +38,9 @@ void Systick_Setup();
 
 void Spi3_Setup();
 uint8_t Spi3_Receive_8b(uint8_t *data);
+uint8_t Spi3_Read8();
+void Spi3_Read8_Multi(uint8_t *dataRx, uint16_t cnt);
+void Spi3_ClearRxBuff();
 void Spi3_Send(uint8_t *byte, uint32_t length);
 void Spi3_Transreceive_8b(uint8_t *dataTx, uint16_t lengthTx, uint8_t *dataRx, uint16_t lengthRx);
 extern uint64_t ms;//reference time counted from the "beginning"
