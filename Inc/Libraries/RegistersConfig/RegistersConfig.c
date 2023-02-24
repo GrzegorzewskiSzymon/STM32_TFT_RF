@@ -23,7 +23,8 @@ void GPIOA_Setup()
 	//
 
 	// PA0 connected to battery voltage divider output
-	GPIOA->MODER &= ~ (GPIO_MODER_MODE0_0 | GPIO_MODER_MODE0_1 ); // Input
+	// PA0 - ADC12_IN1
+//	GPIOA->MODER &= ~ (GPIO_MODER_MODE0_0 | GPIO_MODER_MODE0_1 ); // Input
 
 	// PA15 connected to gate of mosfet
 	GPIOA->MODER &= ~ GPIO_MODER_MODE15_1; // GPOM
@@ -121,6 +122,37 @@ void ClockFrequency_Setup()
 	RCC->CFGR &= ~(1<<7);
 }
 
+//
+// Battery Management
+//
+void ADC1_Setup()
+{
+	//Clock signal
+	RCC->AHB2ENR |= RCC_AHB2ENR_ADC12EN;
+
+	ADC12_COMMON->CCR |= (3<<ADC_CCR_CKMODE_Pos); //Adc_hclk/4
+
+	ADC1->CR = 0; //Disable deep power_down mode
+	ADC1->CR |= ADC_CR_ADVREGEN; //Voltage regulator enable
+	ADC1->SMPR1 |= (4<<ADC_SMPR1_SMP1_Pos);	//47.5 ADC clock cycles
+	ADC1->ISR |= ADC_ISR_ADRDY; //Clear the ADRDY bit
+	ADC1->CR |= ADC_CR_ADEN;   //Enable the ADC
+
+	while (!(ADC1->ISR & ADC_ISR_ADRDY)) //Wait for ADC to be ready to start conversion
+	{
+	}
+}
+
+uint16_t ADC1_Read()
+{
+	ADC1->SQR1 |= (1<<ADC_SQR1_SQ1_Pos); //Channel number assigned as the 1st in the regular conversion sequence
+	ADC1->CR |= ADC_CR_ADSTART; //Start of regular conversion
+
+	while(!((ADC1->ISR)&ADC_ISR_EOC))// Waiting for end of the conversions
+	{
+	}
+	return ADC1->DR;
+}
 
 //
 // Systick

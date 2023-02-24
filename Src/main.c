@@ -27,6 +27,8 @@ int main(void)
 	NRF24L01_Setup();
 	NRF24L01_Mode_Rx(rxAddress, 10);
 
+	ADC1_Setup();
+	uint16_t tmp;
 	while(1)
 	{
 
@@ -39,7 +41,11 @@ int main(void)
 			}
 
 		}
+		tmp = ADC1_Read();
 
-
+		uint64_t tmp_ms = ms;
+		while((ms - tmp_ms) < 20)
+		{
+		}
 	}
 }
