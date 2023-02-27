@@ -37,13 +37,16 @@ void ClockFrequency_Setup();
 void Systick_Setup();
 
 void ADC1_Setup();
-uint16_t ADC1_Read();
+void ADC1_StartConversion();
+void TIM3_Setup();
 
 void Spi3_Setup();
 uint8_t Spi3_Read8();
 void Spi3_Read8_Multi(uint8_t *dataRx, uint16_t cnt);
 void Spi3_ClearRxBuff();
 void Spi3_Send(uint8_t *byte, uint32_t length);
+
 extern uint64_t ms;//reference time counted from the "beginning"
+extern uint16_t battRawVoltageData;
 
 #endif /* LIBRARIES_REGISTERSCONFIG_REGISTERSCONFIG_H_ */

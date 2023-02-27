@@ -141,17 +141,31 @@ void ADC1_Setup()
 	while (!(ADC1->ISR & ADC_ISR_ADRDY)) //Wait for ADC to be ready to start conversion
 	{
 	}
+
+	ADC1->IER |= ADC_IER_EOCIE; //End of regular conversion interrupt enable
+//	ADC1->CFGR |= (3<<ADC_CFGR_EXTEN_Pos); //Trigger detection on both the rising and falling edges
+//	ADC1->CFGR |= (4<<ADC_CFGR_EXTSEL_Pos); //TIM3_TRGO
+
+	NVIC_EnableIRQ(ADC1_2_IRQn);
+
 }
 
-uint16_t ADC1_Read()
+uint16_t battRawVoltageData;
+void ADC1_2_IRQHandler()
 {
+	battRawVoltageData = ADC1->DR;
+	ADC1->ISR |= ADC_ISR_EOC; //Reset flag
+}
+
+void ADC1_StartConversion()
+{
+
 	ADC1->SQR1 |= (1<<ADC_SQR1_SQ1_Pos); //Channel number assigned as the 1st in the regular conversion sequence
 	ADC1->CR |= ADC_CR_ADSTART; //Start of regular conversion
-
-	while(!((ADC1->ISR)&ADC_ISR_EOC))// Waiting for end of the conversions
-	{
-	}
-	return ADC1->DR;
+//	while(!((ADC1->ISR)&ADC_ISR_EOC))// Waiting for end of the conversions
+//	{
+//	}
+//	return ADC1->DR;
 }
 
 //
@@ -242,9 +256,45 @@ void Spi3_ClearRxBuff()
 	SPI_NRF24L01_DISABLE;
 }
 
+void TIM3_Setup()
+{
+	RCC->APB1ENR1 |= RCC_APB1ENR1_TIM3EN; //TIM3 clock enable
+
+	/*Set channel 1 to active level on match. tim_oc1ref signal is forced high when the
+	 *	counter TIMx_CNT matches the capture/compare register 1 (TIMx_CCR1).
+	 * */
+	TIM3->CCMR1 |= (1<<TIM_CCMR1_OC1M_Pos);
+
+	/*Frq = [CLK/(PSC+1)]/[ARR]
+	 * 1Hz
+	 * */
+	TIM3->PSC = 16999;
+	TIM3->CNT =  0;
+	TIM3->ARR =  9999;
+//	TIM3->CCR1 = 9999;
+
+	//Master mode selection
+	TIM3->CR2  |= (4<<4); //Compare - tim_oc1refc signal is used as trigger output (tim_trgo)
+	TIM3->DIER |=  TIM_DIER_UIE;//Update interrupt enable
+	TIM3->EGR  |= TIM_EGR_UG; 	//Update generation
+
+	NVIC_EnableIRQ(TIM3_IRQn);    //Enable interrupt from TIM3
+
+	TIM3->CR1 |= (1<<0);//Counter enabled
+}
+
+
 //
 // INTERRUPT HANDLERS
 //
+
+//Battery 1HZ
+void TIM3_IRQHandler()
+{
+	ADC1_StartConversion();
+	TIM3->CNT =  0;
+	TIM3->SR = 0;//Reset flag
+}
 
 //SYSTICK
 uint64_t ms;
