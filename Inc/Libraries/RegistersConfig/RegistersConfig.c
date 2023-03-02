@@ -122,9 +122,21 @@ void ClockFrequency_Setup()
 	RCC->CFGR &= ~(1<<7);
 }
 
+
 //
 // Battery Management
 //
+
+void ADC1_RegistersCalib()
+{
+	ADC1->CR &= ~ADC_CR_ADCALDIF;
+	ADC1->CR |=  ADC_CR_ADCAL; //Start the calibration of the ADC
+	while(ADC1->CR & ADC_CR_ADCAL) //Wait for the end of the calibration
+	{
+
+	}
+}
+
 void ADC1_Setup()
 {
 	//Clock signal
@@ -134,7 +146,11 @@ void ADC1_Setup()
 
 	ADC1->CR = 0; //Disable deep power_down mode
 	ADC1->CR |= ADC_CR_ADVREGEN; //Voltage regulator enable
+
 	ADC1->SMPR1 |= (4<<ADC_SMPR1_SMP1_Pos);	//47.5 ADC clock cycles
+
+	ADC1_RegistersCalib();
+
 	ADC1->ISR |= ADC_ISR_ADRDY; //Clear the ADRDY bit
 	ADC1->CR |= ADC_CR_ADEN;   //Enable the ADC
 
@@ -150,12 +166,7 @@ void ADC1_Setup()
 
 }
 
-uint16_t battRawVoltageData;
-void ADC1_2_IRQHandler()
-{
-	battRawVoltageData = ADC1->DR;
-	ADC1->ISR |= ADC_ISR_EOC; //Reset flag
-}
+
 
 void ADC1_StartConversion()
 {
@@ -295,6 +306,14 @@ void TIM3_IRQHandler()
 	TIM3->CNT =  0;
 	TIM3->SR = 0;//Reset flag
 }
+
+uint16_t battRawVoltageData;
+void ADC1_2_IRQHandler()
+{
+	battRawVoltageData = ADC1->DR;
+	ADC1->ISR |= ADC_ISR_EOC; //Reset flag
+}
+
 
 //SYSTICK
 uint64_t ms;
