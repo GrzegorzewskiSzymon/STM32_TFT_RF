@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include "stm32g431xx.h"
 #include "RegistersConfig.h"
+#include "../PowerManagement/BatteryManagement.h"
 
 //
 // GPIOx
@@ -166,8 +167,6 @@ void ADC1_Setup()
 
 }
 
-
-
 void ADC1_StartConversion()
 {
 
@@ -291,9 +290,8 @@ void TIM3_Setup()
 
 	NVIC_EnableIRQ(TIM3_IRQn);    //Enable interrupt from TIM3
 
-	TIM3->CR1 |= (1<<0);//Counter enabled
+	TIM3_START;
 }
-
 
 //
 // INTERRUPT HANDLERS
@@ -302,15 +300,16 @@ void TIM3_Setup()
 //Battery 1HZ
 void TIM3_IRQHandler()
 {
-	ADC1_StartConversion();
+	CalculateBattVolatage(); //Calculate battery level from previous sample
+
+	ADC1_StartConversion(); //Take a new sample
 	TIM3->CNT =  0;
-	TIM3->SR = 0;//Reset flag
+	TIM3->SR = 0; //Reset flag
 }
 
-uint16_t battRawVoltageData;
 void ADC1_2_IRQHandler()
 {
-	battRawVoltageData = ADC1->DR;
+	battery.rawVoltageData = ADC1->DR;
 	ADC1->ISR |= ADC_ISR_EOC; //Reset flag
 }
 

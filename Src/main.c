@@ -4,7 +4,6 @@
 #include "../Inc/Libraries/RF/NRF24L01.h"
 #include "../Inc/Libraries/PowerManagement/BatteryManagement.h"
 
-
 uint8_t rxAddress[] = {0xEE, 0xDD, 0xCC, 0xBB, 0xAA};
 uint8_t rxBuff[32];
 

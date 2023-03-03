@@ -25,7 +25,9 @@
 #define SPI_NRF24L01_ENABLE  SPI3->CR1 |=  SPI_CR1_SPE //SPI  enable
 #define SPI_NRF24L01_DISABLE SPI3->CR1 &=~ SPI_CR1_SPE //SPI disable
 
-
+//TIM3
+#define TIM3_START TIM3->CR1 |=  (1<<0);//Counter enabled
+#define TIM3_STOP  TIM3->CR1 &= ~(1<<0);//Counter enabled
 
 //
 // Functions
