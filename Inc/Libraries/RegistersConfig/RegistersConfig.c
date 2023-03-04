@@ -18,6 +18,28 @@ void GPIOA_Setup()
 {
 	RCC->AHB2ENR |= RCC_AHB2ENR_GPIOAEN;
 
+	//
+	//SPI 1 - ILI9341
+	//
+
+	//PA5 as SCK
+	GPIOA->MODER  &=   ~(1<<10); //Alternate function mode
+	GPIOA->AFR[0] |= (5<<20);//AFSEL5[0101] -> AF5
+	GPIOA->OSPEEDR |= GPIO_OSPEEDR_OSPEED5_0;//Medium Speed
+
+	//PA6 as MISO
+	GPIOA->MODER  &=   ~(GPIO_MODER_MODER6_0);
+	GPIOA->AFR[0] |= (5<<GPIO_AFRL_AFSEL6_Pos);
+
+	//PA7 as MOSI
+	GPIOA->MODER  &=   ~(GPIO_MODER_MODER7_0);
+	GPIOA->AFR[0] |= (5<<GPIO_AFRL_AFSEL7_Pos);
+
+	//PA8 as TFT_RESET
+	GPIOA->MODER &= ~(GPIO_MODER_MODER8_1);//General purpose output mode
+
+	//PA9 as D/C
+	GPIOA->MODER &= ~(GPIO_MODER_MODER9_1);//General purpose output mode
 
 	//
 	// PowerManagement
@@ -31,7 +53,6 @@ void GPIOA_Setup()
 	GPIOA->MODER &= ~ GPIO_MODER_MODE15_1; // GPOM
 
 }
-
 
 void GPIOC_Setup()
 {
@@ -123,7 +144,6 @@ void ClockFrequency_Setup()
 	RCC->CFGR &= ~(1<<7);
 }
 
-
 //
 // Battery Management
 //
@@ -191,6 +211,44 @@ void Systick_Setup()
  	SysTick->CTRL  =  (SysTick_CTRL_CLKSOURCE_Msk) //Processor clock (AHB)
  				   |  (SysTick_CTRL_ENABLE_Msk)    //Enables the counter
  				   |  (SysTick_CTRL_TICKINT_Msk);  //Exception request
+}
+
+//
+// SPI 1 - ILI9341
+//
+
+void Spi1_Setup()
+{
+	RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
+										//MSB first (by default)
+										//Clock polarity to 0 when idle (by default)
+										//The first clock transition is the first data capture edge (by default)
+										//Data size 8-bit (by default)
+										//Motorola frame format (by default)
+										//No NSS pulse (by default)
+	SPI1->CR1 |= SPI_CR1_MSTR;			//Master configuration
+	SPI1->CR1 |= (4<<SPI_CR1_BR_Pos);	//fPCLK/32 = ~5,3Mhz
+	SPI1->CR1 |= (1<<8) | (1<<9);  		//Software Slave Management
+	SPI1->CR2 = 0;
+}
+
+void Spi1_Send(uint8_t *byte, uint32_t length)
+{
+
+    while (length > 0U)
+    {
+    	//not sure if necessary
+    	if (((SPI1->SR)&(1<<1)))//Wait for TXE bit to set -> This will indicate that the buffer is empty
+    	{
+    		*((volatile uint8_t *) &SPI1->DR) = (*byte);//Load the data into the Data Register
+    		byte++;
+    		length--;
+    	}
+    }
+
+    //not sure if necessary
+	//Wait for BSY bit to Reset -> This will indicate that SPI is not busy in communication
+	while (((SPI1->SR)&(1<<7))) {};
 }
 
 //
