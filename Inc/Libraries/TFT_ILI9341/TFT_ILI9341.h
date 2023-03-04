@@ -8,18 +8,9 @@
 #ifndef LIBRARIES_TFT_ILI9341_TFT_ILI9341_H_
 #define LIBRARIES_TFT_ILI9341_TFT_ILI9341_H_
 
-// 0 - 0dgr; 1 - 90dgr; 2 - 180dgr; 3 - 270dgr
-#define ILI9341_ROTATION 2
 
-
-#if(ILI9341_ROTATION == 0) || (ILI9341_ROTATION == 2)
-#define TFT_WIDTH 240  ///< ILI9341 max TFT width
-#define TFT_HEIGHT 320 ///< ILI9341 max TFT height
-#elif(ILI9341_ROTATION == 1) || (ILI9341_ROTATION == 3)
-#define TFT_WIDTH 320  ///< ILI9341 max TFT width
-#define TFT_HEIGHT 240 ///< ILI9341 max TFT height
-#endif
-
+extern uint16_t tftWidth;
+extern uint16_t tftHeight;
 
 //
 // Functions
@@ -31,7 +22,7 @@ void Spi_ILI9341_Send(uint8_t *byte, uint32_t length);
 void ILI9341_Init();
 void ILI9341_DrawPixel(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, uint16_t color);
 void ILI9341_DrawImg(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, const uint8_t *img);
-void ILI9341_setRotation(uint8_t rotation);
+void ILI9341_setRotation();
 
 // idle mode simplify displayed colors
 void ILI9341_idleMode_OFF();

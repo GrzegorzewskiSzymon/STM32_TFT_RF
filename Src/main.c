@@ -3,6 +3,9 @@
 #include "../Inc/Libraries/RegistersConfig/RegistersConfig.h"
 #include "../Inc/Libraries/RF/NRF24L01.h"
 #include "../Inc/Libraries/PowerManagement/BatteryManagement.h"
+#include "../Inc/Libraries/TFT_ILI9341/TFT_ILI9341.h"
+#include "../Inc/Libraries/TFT_GUI/TFT_GUI.h"
+
 
 uint8_t rxAddress[] = {0xEE, 0xDD, 0xCC, 0xBB, 0xAA};
 uint8_t rxBuff[32];
@@ -27,8 +30,18 @@ int main(void)
 	NRF24L01_Mode_Rx(rxAddress, 10);
 	ADC1_Setup();
 	TIM3_Setup();
+
+	Spi_ILI9341_Setup();
+	SPI_ILI9341_ENABLE;
+
+	GUI_SetDefaultSettings();
+	ILI9341_Init();
+	GUI_DisplayDesktopLayer();
+
 	while(1)
 	{
+
+
 
 		if (NRF24L01_isDataAvailable(1))
 		{

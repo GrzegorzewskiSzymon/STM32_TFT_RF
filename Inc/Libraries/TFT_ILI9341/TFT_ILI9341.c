@@ -9,6 +9,7 @@
 #include "stm32g431xx.h"
 #include "TFT_ILI9341.h"
 #include "../RegistersConfig/RegistersConfig.h"
+#include "../TFT_GUI/TFT_GUI.h"
 
 //
 // SPI
@@ -57,9 +58,25 @@ void ILI9341_idleMode_ON()
 {
 	ILI9341_sendCommand(0x39);
 }
+uint16_t tftWidth;
+uint16_t tftHeight;
 
-void ILI9341_setRotation(uint8_t rotation)
+void ILI9341_setRotation()
 {
+	uint8_t rotation;
+	if(guiInfo.displayRotation == VERTICAL)
+	{
+		rotation = 0;
+		tftWidth  = 240;
+		tftHeight = 320;
+	}
+	else
+	{
+		rotation = 3;
+		tftWidth  = 320;
+		tftHeight = 240;
+	}
+
 	ILI9341_sendCommand(ILI9341_MADCTL);
 
 	ILI9341_DC_DATA;
@@ -142,12 +159,12 @@ void ILI9341_Init()
 			ILI9341_Delay_ms(150);
 		}
 	}
-	ILI9341_setRotation(ILI9341_ROTATION);
+	ILI9341_setRotation();
 }
 
 uint8_t ILI9341_setFrame(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height)
 {
-	if (posX+width > TFT_WIDTH || posY+height > TFT_HEIGHT)
+	if (posX+width > tftWidth || posY+height > tftHeight)
 		return 1;
 
 	uint8_t posY_tab[4];
