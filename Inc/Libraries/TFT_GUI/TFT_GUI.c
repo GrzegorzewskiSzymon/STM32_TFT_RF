@@ -35,12 +35,24 @@ void GUI_DisplayDesktopLayer()
 
 	if(guiInfo.displayRotation == VERTICAL)
 	{
+		ILI9341_DrawRoundedRectangle(50, 40, 50, 50, 10, ILI9341_BLACK);
+		ILI9341_DrawRoundedRectangle(140, 40, 50, 50, 10, ILI9341_BLACK);
 
+		ILI9341_DrawRoundedRectangle(50, 135, 50, 50, 10, ILI9341_BLACK);
+		ILI9341_DrawRoundedRectangle(140, 135, 50, 50, 10, ILI9341_BLACK);
+
+		ILI9341_DrawRoundedRectangle(50, 230, 50, 50, 10, ILI9341_BLACK);
+		ILI9341_DrawRoundedRectangle(140, 230, 50, 50, 10, ILI9341_BLACK);
 	}
 	else //Horizontal
 	{
+		ILI9341_DrawRoundedRectangle(40, 50, 50, 50, 10, ILI9341_BLACK);
+		ILI9341_DrawRoundedRectangle(40, 140, 50, 50, 10, ILI9341_BLACK);
 
+		ILI9341_DrawRoundedRectangle(135, 50, 50, 50, 10, ILI9341_BLACK);
+		ILI9341_DrawRoundedRectangle(135, 140, 50, 50, 10, ILI9341_BLACK);
+
+		ILI9341_DrawRoundedRectangle(230, 50, 50, 50, 10, ILI9341_BLACK);
+		ILI9341_DrawRoundedRectangle(230, 140, 50, 50, 10, ILI9341_BLACK);
 	}
-
-
 }
