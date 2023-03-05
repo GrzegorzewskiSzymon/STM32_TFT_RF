@@ -10,7 +10,6 @@
 #include "TFT_ILI9341.h"
 #include "../RegistersConfig/RegistersConfig.h"
 #include "../TFT_GUI/TFT_GUI.h"
-
 //
 // SPI
 //
@@ -206,7 +205,6 @@ void ILI9341_DrawPixel(uint16_t posX, uint16_t posY, uint16_t width, uint16_t he
 		Spi_ILI9341_Send(color_tab, 2);
 }
 
-
 void ILI9341_DrawImg(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, const uint8_t *img)
 {
 	uint8_t *imgPointer;
@@ -227,5 +225,127 @@ void ILI9341_DrawImg(uint16_t posX, uint16_t posY, uint16_t width, uint16_t heig
 		imgPointer++;
 
 		Spi_ILI9341_Send(color_tab, 2);
+	}
+}
+
+void ILI9341_DrawLineVertical(uint16_t posX, uint16_t posY, uint16_t height, uint16_t color)
+{
+	if(ILI9341_setFrame(posX, posY, 1, height) )
+		return;
+
+	uint8_t color_tab[2];
+	color_tab[0] =  color >> 8;
+	color_tab[1] =  color & 0xff;
+
+	ILI9341_sendCommand(ILI9341_RAMWR);
+
+	ILI9341_DC_DATA;
+	for(uint32_t i = 0; i < height; i++)
+		Spi_ILI9341_Send(color_tab, 2);
+}
+
+void ILI9341_DrawLineHorizontal(uint16_t posX, uint16_t posY, uint16_t width, uint16_t color)
+{
+	if(ILI9341_setFrame(posX, posY, width, 1) )
+		return;
+
+	uint8_t color_tab[2];
+	color_tab[0] =  color >> 8;
+	color_tab[1] =  color & 0xff;
+
+	ILI9341_sendCommand(ILI9341_RAMWR);
+
+	ILI9341_DC_DATA;
+	for(uint32_t i = 0; i < width; i++)
+		Spi_ILI9341_Send(color_tab, 2);
+}
+
+void ILI9341_DrawRectangle(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, uint16_t color)
+{
+	ILI9341_DrawLineHorizontal(posX,         posY,          width,  color);
+	ILI9341_DrawLineVertical  (posX,         posY,          height, color);
+	ILI9341_DrawLineHorizontal(posX,         posY+height-1, width,  color);
+	ILI9341_DrawLineVertical  (posX+width-1, posY,          height, color);
+}
+
+void ILI9341_DrawCicle(uint16_t posX, uint16_t posY, uint16_t radius, uint16_t color)
+{
+	int i,j,radiusSquare;
+
+	//(x)^2 + (y)^2 = r^2 - mathematical function to draw a circle
+
+	/*We need to start calculating x positions from the center of the circle minus the radius
+	 *all the way to the center of the circle plus the radius
+	 */
+	for(i=posX-radius;i<=posX+radius;i++)
+	{
+		//Same as above but for y coordinates
+		for(j=posY-radius;j<=posY+radius;j++)
+		{
+			//(x)^2 + (y)^2 = r^2
+			radiusSquare=((i-posX)*(i-posX))+((j-posY)*(j-posY));
+
+			//Square root
+			// r^2 -> r
+			double calculatedRadius = radiusSquare;
+			while ((calculatedRadius - radiusSquare / calculatedRadius) > 1) //loop until precision satisfied
+			{
+				calculatedRadius = (calculatedRadius + radiusSquare / calculatedRadius) / 2;
+			}
+
+			//If calculated radius is equal determined radius
+			if(radius==(uint16_t)calculatedRadius)
+			{
+				ILI9341_DrawPixel(i, j, 1, 1, color);
+			}
+		}
+	}
+}
+
+void ILI9341_DrawRoundedRectangle(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height,uint16_t radius, uint16_t color)
+{
+	//Draw straight lines
+	ILI9341_DrawLineHorizontal(posX+radius,  posY,          width -(2*radius),  color);
+	ILI9341_DrawLineVertical  (posX,         posY+radius,  	height-(2*radius),  color);
+	ILI9341_DrawLineHorizontal(posX+radius,  posY+height-1, width -(2*radius),  color);
+	ILI9341_DrawLineVertical  (posX+width-1, posY+radius,   height-(2*radius),  color);
+
+	//draw rounded vertices
+	int i,j,radiusSquare;
+
+	//(x)^2 + (y)^2 = r^2 - mathematical function to draw a circle
+	//Explained in function to draw a circle
+	for(i=posX-(width/2)+1;i<=posX+(width/2)+1;i++)
+	{
+		for(j=posY-(height/2)+1;j<=posY+(height/2)+1;j++)
+		{
+			//(x)^2 + (y)^2 = r^2
+			radiusSquare=((i-posX)*(i-posX))+((j-posY)*(j-posY));
+
+			//Square root
+			// r^2 -> r
+			double calculatedRadius = radiusSquare;
+			while ((calculatedRadius - radiusSquare / calculatedRadius) > 1) //loop until precision satisfied
+			{
+				calculatedRadius = (calculatedRadius + radiusSquare / calculatedRadius) / 2;
+			}
+
+			//If calculated radius is equal determined radius
+			if(radius==(uint16_t)calculatedRadius)
+			{
+				//Left up corner
+				if(i<posX && j<posY)
+					ILI9341_DrawPixel(i+radius, j+radius, 1, 1, color);
+				//Right up corner
+				if(i>posX && j<posY)
+					ILI9341_DrawPixel(i+width-radius-1, j+radius, 1, 1, color);
+				//Left down corner
+				if(i<posX && j>posY)
+					ILI9341_DrawPixel(i+radius, j+width-radius-1, 1, 1, color);
+				//Right down corner
+				if(i>posX && j>posY)
+					ILI9341_DrawPixel(i+width-radius-1, j+width-radius-1, 1, 1, color);
+			}
+		}
 	}
 }

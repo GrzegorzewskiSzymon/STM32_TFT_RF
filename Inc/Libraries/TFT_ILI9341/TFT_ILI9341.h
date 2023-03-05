@@ -20,10 +20,16 @@ void Spi_ILI9341_Setup();
 void Spi_ILI9341_Send(uint8_t *byte, uint32_t length);
 
 void ILI9341_Init();
-void ILI9341_DrawPixel(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, uint16_t color);
-void ILI9341_DrawImg(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, const uint8_t *img);
 void ILI9341_setRotation();
 
+//Drawing
+void ILI9341_DrawPixel(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, uint16_t color);
+void ILI9341_DrawImg(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, const uint8_t *img);
+void ILI9341_DrawLineVertical(uint16_t posX, uint16_t posY, uint16_t height, uint16_t color);
+void ILI9341_DrawLineHorizontal(uint16_t posX, uint16_t posY, uint16_t width, uint16_t color);
+void ILI9341_DrawRectangle(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, uint16_t color);
+void ILI9341_DrawCicle(uint16_t posX, uint16_t posY, uint16_t radius, uint16_t color);
+void ILI9341_DrawRoundedRectangle(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height,uint16_t radius, uint16_t color);
 // idle mode simplify displayed colors
 void ILI9341_idleMode_OFF();
 void ILI9341_idleMode_ON();
