@@ -62,6 +62,5 @@ void GUI_DisplayDesktopLayer()
 		ILI9341_DrawRoundedRectangle(230, 50, 50, 50, 10, ILI9341_BLACK);
 		ILI9341_DrawRoundedRectangle(230, 140, 50, 50, 10, ILI9341_BLACK);
 	}
-
-	ILI9341_DrawRoundedRectangle(guiButton_Settings.posX, guiButton_Settings.posY, guiButton_Settings.width, guiButton_Settings.height, 10, ILI9341_BLACK);
+	ILI9341_DrawRoundedRectangleButton(guiButton_Settings);
 }

@@ -349,3 +349,52 @@ void ILI9341_DrawRoundedRectangle(uint16_t posX, uint16_t posY, uint16_t width, 
 		}
 	}
 }
+void ILI9341_DrawRoundedRectangleButton(GUI_BUTTON button)
+{
+	uint8_t radius  = 10;
+	uint16_t color  = ILI9341_BLACK;
+	//Draw straight lines
+	ILI9341_DrawLineHorizontal(button.posX+radius,  button.posY,          button.width -(2*radius),  color);
+	ILI9341_DrawLineVertical  (button.posX,         button.posY+radius,  	button.height-(2*radius),  color);
+	ILI9341_DrawLineHorizontal(button.posX+radius,  button.posY+button.height-1, button.width -(2*radius),  color);
+	ILI9341_DrawLineVertical  (button.posX+button.width-1, button.posY+radius,   button.height-(2*radius),  color);
+
+	//draw rounded vertices
+	int i,j,radiusSquare;
+
+	//(x)^2 + (y)^2 = r^2 - mathematical function to draw a circle
+	//Explained in function to draw a circle
+	for(i=button.posX-(button.width/2)+1;i<=button.posX+(button.width/2)+1;i++)
+	{
+		for(j=button.posY-(button.height/2)+1;j<=button.posY+(button.height/2)+1;j++)
+		{
+			//(x)^2 + (y)^2 = r^2
+			radiusSquare=((i-button.posX)*(i-button.posX))+((j-button.posY)*(j-button.posY));
+
+			//Square root
+			// r^2 -> r
+			double calculatedRadius = radiusSquare;
+			while ((calculatedRadius - radiusSquare / calculatedRadius) > 1) //loop until precision satisfied
+			{
+				calculatedRadius = (calculatedRadius + radiusSquare / calculatedRadius) / 2;
+			}
+
+			//If calculated radius is equal determined radius
+			if(radius==(uint16_t)calculatedRadius)
+			{
+				//Left up corner
+				if(i<button.posX && j<button.posY)
+					ILI9341_DrawPixel(i+radius, j+radius, 1, 1, color);
+				//Right up corner
+				if(i>button.posX && j<button.posY)
+					ILI9341_DrawPixel(i+button.width-radius-1, j+radius, 1, 1, color);
+				//Left down corner
+				if(i<button.posX && j>button.posY)
+					ILI9341_DrawPixel(i+radius, j+button.width-radius-1, 1, 1, color);
+				//Right down corner
+				if(i>button.posX && j>button.posY)
+					ILI9341_DrawPixel(i+button.width-radius-1, j+button.width-radius-1, 1, 1, color);
+			}
+		}
+	}
+}

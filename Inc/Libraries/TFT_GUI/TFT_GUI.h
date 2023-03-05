@@ -4,6 +4,8 @@
  *  Created on: 4 Mar 2023
  *      Author: Szymon Grzegorzewski
  */
+#ifndef LIBRARIES_TFT_GUI_TFT_GUI_H_
+#define LIBRARIES_TFT_GUI_TFT_GUI_H_
 
 enum GUI_Layers
 {
@@ -36,3 +38,5 @@ typedef struct
 
 void GUI_SetDefaultSettings();
 void GUI_DisplayDesktopLayer();
+
+#endif /* LIBRARIES_TFT_GUI_TFT_GUI_H_ */
