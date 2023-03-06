@@ -32,6 +32,8 @@ void ILI9341_DrawRectangle(uint16_t posX, uint16_t posY, uint16_t width, uint16_
 void ILI9341_DrawCicle(uint16_t posX, uint16_t posY, uint16_t radius, uint16_t color);
 void ILI9341_DrawRoundedRectangle(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height,uint16_t radius, uint16_t color);
 void ILI9341_DrawRoundedRectangleButton(GUI_BUTTON button);
+void ILI9341_DrawChar(int x, int y, char chr, uint16_t color);
+void ILI9341_DrawString(int x, int y, char* str, uint16_t color);
 
 // idle mode simplify displayed colors
 void ILI9341_idleMode_OFF();

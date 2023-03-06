@@ -10,6 +10,8 @@
 #include "TFT_ILI9341.h"
 #include "../RegistersConfig/RegistersConfig.h"
 #include "../TFT_GUI/TFT_GUI.h"
+#include "font_8x5.h"
+
 //
 // SPI
 //
@@ -354,10 +356,10 @@ void ILI9341_DrawRoundedRectangleButton(GUI_BUTTON button)
 	uint8_t radius  = 10;
 	uint16_t color  = ILI9341_BLACK;
 	//Draw straight lines
-	ILI9341_DrawLineHorizontal(button.posX+radius,  button.posY,          button.width -(2*radius),  color);
-	ILI9341_DrawLineVertical  (button.posX,         button.posY+radius,  	button.height-(2*radius),  color);
-	ILI9341_DrawLineHorizontal(button.posX+radius,  button.posY+button.height-1, button.width -(2*radius),  color);
-	ILI9341_DrawLineVertical  (button.posX+button.width-1, button.posY+radius,   button.height-(2*radius),  color);
+	ILI9341_DrawLineHorizontal(button.posX+radius,  	   button.posY,                 button.width -(2*radius),  color);
+	ILI9341_DrawLineVertical  (button.posX,         	   button.posY+radius,  	    button.height-(2*radius),  color);
+	ILI9341_DrawLineHorizontal(button.posX+radius,         button.posY+button.height-1, button.width -(2*radius),  color);
+	ILI9341_DrawLineVertical  (button.posX+button.width-1, button.posY+radius,          button.height-(2*radius),  color);
 
 	//draw rounded vertices
 	int i,j,radiusSquare;
@@ -396,5 +398,37 @@ void ILI9341_DrawRoundedRectangleButton(GUI_BUTTON button)
 					ILI9341_DrawPixel(i+button.width-radius-1, j+button.width-radius-1, 1, 1, color);
 			}
 		}
+	}
+}
+
+void ILI9341_DrawChar(int x, int y, char chr, uint16_t color)
+{
+	if(chr > 0x7E) return; //chr > '~'
+
+	for(uint8_t i=0; i<font_8x5[1]; i++ ) //Each column (Width)
+	{
+        uint8_t line = (uint8_t)font_8x5[(chr-0x20) * font_8x5[1] + i + 2]; //Takie this line, (chr-0x20) = move 20 chars back,
+
+        for(int8_t j=0; j<font_8x5[0]; j++, line >>= 1) //For each pixel in column
+        {
+            if(line & 1) //Check last pixel in line
+            {
+            		ILI9341_DrawPixel(x+i, y+j, 1, 1, color); //Draw this pixel
+            }
+        }
+    }
+}
+
+void ILI9341_DrawString(int x, int y, char* str, uint16_t color)
+{
+	int x_tmp = x;
+	char znak;
+	znak = *str;
+
+	while(*str++)
+	{
+		ILI9341_DrawChar(x_tmp, y, znak, color); //Draw current char
+		x_tmp += ((uint8_t)font_8x5[1]) + 1; //Move X drawing pointer do char width + 1 (space)
+		znak = *str; //Next char
 	}
 }
