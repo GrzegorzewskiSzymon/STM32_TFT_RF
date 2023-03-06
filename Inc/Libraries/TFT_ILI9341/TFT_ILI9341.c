@@ -401,7 +401,7 @@ void ILI9341_DrawRoundedRectangleButton(GUI_BUTTON button)
 	}
 }
 
-void ILI9341_DrawChar(int x, int y, char chr, uint16_t color)
+void ILI9341_DrawChar(int x, int y, char chr, uint16_t color,uint16_t backgroundColor, uint8_t isBackgroundColorUsed)
 {
 	if(chr > 0x7E) return; //chr > '~'
 
@@ -415,11 +415,13 @@ void ILI9341_DrawChar(int x, int y, char chr, uint16_t color)
             {
             		ILI9341_DrawPixel(x+i, y+j, 1, 1, color); //Draw this pixel
             }
+            else if(isBackgroundColorUsed)
+            	ILI9341_DrawPixel(x+i, y+j, 1, 1, backgroundColor); //Draw this pixel
         }
     }
 }
 
-void ILI9341_DrawString(int x, int y, char* str, uint16_t color)
+void ILI9341_DrawString(int x, int y, char* str, uint16_t color, uint16_t backgroundColor, uint8_t isBackgroundColorUsed)
 {
 	int x_tmp = x;
 	char znak;
@@ -427,7 +429,7 @@ void ILI9341_DrawString(int x, int y, char* str, uint16_t color)
 
 	while(*str++)
 	{
-		ILI9341_DrawChar(x_tmp, y, znak, color); //Draw current char
+		ILI9341_DrawChar(x_tmp, y, znak, color, backgroundColor,isBackgroundColorUsed); //Draw current char
 		x_tmp += ((uint8_t)font_8x5[1]) + 1; //Move X drawing pointer do char width + 1 (space)
 		znak = *str; //Next char
 	}
