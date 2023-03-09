@@ -36,6 +36,14 @@ typedef struct
 
 }GUI_BUTTON;
 
+typedef struct
+{
+	uint16_t posX;
+	uint16_t posY;
+
+}GUI_DISPLAY_BATTERY_DATA;
+extern GUI_DISPLAY_BATTERY_DATA batteryDisplayData;
+
 void GUI_SetDefaultSettings();
 void GUI_DisplayDesktopLayer();
 

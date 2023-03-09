@@ -26,8 +26,32 @@ void GUI_SetButton(GUI_BUTTON *button, uint16_t posX,uint16_t posY, uint16_t wid
 void GUI_SetDefaultSettings()
 {
 	guiInfo.backgroundColor = ILI9341_DARKGREY;
-	guiInfo.displayRotation = HORIZONTAL;
+	guiInfo.displayRotation = VERTICAL;
 }
+
+GUI_DISPLAY_BATTERY_DATA batteryDisplayData;
+void GUI_DisplayBatteryStatus(uint16_t posX,uint16_t posY)
+{
+	char str[11];
+
+	str[0] = battery.voltageInteger   + '0';
+	str[1] = '.';
+	str[2] = battery.voltageFract/100 + '0';
+	str[3] = (battery.voltageFract%100)/10  + '0';
+	str[4] = battery.voltageFract%10  + '0';
+	str[5] = 'v';
+	str[6] = ' ';
+	str[7] = battery.voltagePercentage/100 + '0';
+	str[8] = (battery.voltagePercentage%100)/10 + '0';
+	str[9] = battery.voltagePercentage%10  + '0';
+	str[10] = '%';
+
+	if(str[7] == '0')
+		str[7] = ' ';
+
+	ILI9341_DrawString(posX, posY, str, ILI9341_BLACK, guiInfo.backgroundColor, 1);
+}
+
 
 GUI_BUTTON guiButton_Settings;
 void GUI_DisplayDesktopLayer()
@@ -50,6 +74,8 @@ void GUI_DisplayDesktopLayer()
 
 		ILI9341_DrawRoundedRectangle(50, 230, 50, 50, 10, ILI9341_BLACK);
 		ILI9341_DrawRoundedRectangle(140, 230, 50, 50, 10, ILI9341_BLACK);
+		batteryDisplayData.posX = 170;
+		batteryDisplayData.posY = 3;
 	}
 	else //Horizontal
 	{
@@ -61,6 +87,10 @@ void GUI_DisplayDesktopLayer()
 
 		ILI9341_DrawRoundedRectangle(230, 50, 50, 50, 10, ILI9341_BLACK);
 		ILI9341_DrawRoundedRectangle(230, 140, 50, 50, 10, ILI9341_BLACK);
+		batteryDisplayData.posX = 250;
+		batteryDisplayData.posY = 3;
 	}
 	ILI9341_DrawRoundedRectangleButton(guiButton_Settings);
 }
+
+

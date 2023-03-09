@@ -9,7 +9,7 @@
 #include "stm32g431xx.h"
 #include "RegistersConfig.h"
 #include "../PowerManagement/BatteryManagement.h"
-
+#include "../TFT_GUI/TFT_GUI.h"
 //
 // GPIOx
 //
@@ -361,6 +361,8 @@ void TIM3_IRQHandler()
 	CalculateBattVolatage(); //Calculate battery level from previous sample
 
 	ADC1_StartConversion(); //Take a new sample
+
+	GUI_DisplayBatteryStatus(batteryDisplayData.posX, batteryDisplayData.posY);
 	TIM3->CNT =  0;
 	TIM3->SR = 0; //Reset flag
 }

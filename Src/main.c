@@ -28,8 +28,6 @@ int main(void)
 
 	NRF24L01_Setup();
 	NRF24L01_Mode_Rx(rxAddress, 10);
-	ADC1_Setup();
-	TIM3_Setup();
 
 	Spi_ILI9341_Setup();
 	SPI_ILI9341_ENABLE;
@@ -38,10 +36,11 @@ int main(void)
 	ILI9341_Init();
 	GUI_DisplayDesktopLayer();
 
+	ADC1_Setup();
+	TIM3_Setup();
+
 	while(1)
 	{
-
-
 
 		if (NRF24L01_isDataAvailable(1))
 		{
