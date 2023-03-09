@@ -34,6 +34,8 @@ typedef struct
 	uint16_t width;
 	uint16_t height;
 
+	uint8_t *imgPointer;
+
 }GUI_BUTTON;
 
 typedef struct

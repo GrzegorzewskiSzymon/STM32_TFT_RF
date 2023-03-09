@@ -11,16 +11,18 @@
 #include "TFT_GUI.h"
 #include "../TFT_ILI9341/TFT_ILI9341.h"
 #include "../PowerManagement/BatteryManagement.h"
+#include "SettingsImg.c.h"
 
 GUI_Data        guiInfo;
 enum GUI_Layers guiSelectedLayer;
 
-void GUI_SetButton(GUI_BUTTON *button, uint16_t posX,uint16_t posY, uint16_t width, uint16_t height)
+void GUI_SetButton(GUI_BUTTON *button, uint16_t posX,uint16_t posY, uint16_t width, uint16_t height, uint8_t *imgPointer)
 {
 	button->posX = posX;
 	button->posY = posY;
 	button->width = width;
 	button->height = height;
+	button->imgPointer = imgPointer;
 }
 
 void GUI_SetDefaultSettings()
@@ -49,7 +51,7 @@ void GUI_DisplayBatteryStatus(uint16_t posX,uint16_t posY)
 	if(str[7] == '0')
 		str[7] = ' ';
 
-	ILI9341_DrawString(posX, posY, str, ILI9341_BLACK, guiInfo.backgroundColor, 1);
+ 	ILI9341_DrawString(posX, posY, str, ILI9341_BLACK, guiInfo.backgroundColor, 1);
 }
 
 
@@ -66,7 +68,7 @@ void GUI_DisplayDesktopLayer()
 
 	if(guiInfo.displayRotation == VERTICAL)
 	{
-		GUI_SetButton(&guiButton_Settings,50,40,50,50);
+		GUI_SetButton(&guiButton_Settings,50,40,50,50, (uint8_t*)SettingsImg);
 		ILI9341_DrawRoundedRectangle(140, 40, 50, 50, 10, ILI9341_BLACK);
 
 		ILI9341_DrawRoundedRectangle(50, 135, 50, 50, 10, ILI9341_BLACK);
@@ -79,7 +81,7 @@ void GUI_DisplayDesktopLayer()
 	}
 	else //Horizontal
 	{
-		GUI_SetButton(&guiButton_Settings,40,50,50,50);
+		GUI_SetButton(&guiButton_Settings,40,50,50,50, (uint8_t*)SettingsImg);
 		ILI9341_DrawRoundedRectangle(40, 140, 50, 50, 10, ILI9341_BLACK);
 
 		ILI9341_DrawRoundedRectangle(135, 50, 50, 50, 10, ILI9341_BLACK);
@@ -91,6 +93,7 @@ void GUI_DisplayDesktopLayer()
 		batteryDisplayData.posY = 3;
 	}
 	ILI9341_DrawRoundedRectangleButton(guiButton_Settings);
+
 }
 
 

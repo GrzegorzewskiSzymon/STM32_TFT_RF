@@ -207,17 +207,17 @@ void ILI9341_DrawPixel(uint16_t posX, uint16_t posY, uint16_t width, uint16_t he
 		Spi_ILI9341_Send(color_tab, 2);
 }
 
-void ILI9341_DrawImg(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, const uint8_t *img)
+void ILI9341_DrawImg(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, const uint8_t *img, uint8_t doNotDisplayWhite)
 {
 	uint8_t *imgPointer;
 	imgPointer = (uint8_t *)img;
 
-	if(ILI9341_setFrame(posX, posY, width, height) )
-		return;
+	if(!doNotDisplayWhite)//if we want do display all colors
+		if(ILI9341_setFrame(posX, posY, width, height) )
+			return;
 
 	ILI9341_sendCommand(ILI9341_RAMWR);
 
-	ILI9341_DC_DATA;
 	uint8_t color_tab[2];
 	for(uint32_t i = 0; i< width*height; i++)
 	{
@@ -225,8 +225,22 @@ void ILI9341_DrawImg(uint16_t posX, uint16_t posY, uint16_t width, uint16_t heig
 		imgPointer++;
 		color_tab[1] = *imgPointer;
 		imgPointer++;
-
-		Spi_ILI9341_Send(color_tab, 2);
+		if(doNotDisplayWhite)
+		{
+			if(color_tab[0] != 0xFF || color_tab[1] != 0xFF)//If color is different then white
+			{
+				if(ILI9341_setFrame(posX+(i%width), posY+(i/height), 1, 1))
+					return;
+				ILI9341_sendCommand(ILI9341_RAMWR);
+				ILI9341_DC_DATA;
+				Spi_ILI9341_Send(color_tab, 2);
+			}
+		}
+		else //Display all colors
+		{
+			ILI9341_DC_DATA;
+			Spi_ILI9341_Send(color_tab, 2);
+		}
 	}
 }
 
@@ -399,6 +413,7 @@ void ILI9341_DrawRoundedRectangleButton(GUI_BUTTON button)
 			}
 		}
 	}
+	ILI9341_DrawImg(button.posX, button.posY, 50, 50, button.imgPointer, 1);
 }
 
 void ILI9341_DrawChar(int x, int y, char chr, uint16_t color,uint16_t backgroundColor, uint8_t isBackgroundColorUsed)
