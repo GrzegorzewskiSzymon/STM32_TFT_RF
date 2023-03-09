@@ -25,6 +25,6 @@ void CalculateBattVolatage()
 	battery.voltageInteger = data/1000;
 	battery.voltageFract = data%1000;
 
-	battery.voltagePercentage = Map(battery.rawVoltageData, 0, MAX_BATT_VALUE, 0, 100);
+	battery.voltagePercentage = Map(battery.rawVoltageData, MAX_BATT_VALUE*0.88, MAX_BATT_VALUE, 0, 100);//MAX_BATT_VALUE*0.88 = 3,7V
 }
 
