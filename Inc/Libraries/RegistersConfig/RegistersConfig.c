@@ -4,12 +4,13 @@
  *  Created on: Dec 28, 2022
  *      Author: Szymon Grzegorzewski
  */
-
 #include <stdint.h>
 #include "stm32g431xx.h"
 #include "RegistersConfig.h"
 #include "../PowerManagement/BatteryManagement.h"
 #include "../TFT_GUI/TFT_GUI.h"
+#include "../TouchScreen/XPT2046.h"
+
 //
 // GPIOx
 //
@@ -45,12 +46,46 @@ void GPIOA_Setup()
 	// PowerManagement
 	//
 
-	// PA0 connected to battery voltage divider output
-	// PA0 - ADC12_IN1
+	// PA0 connected to battery voltage divider output; PA0 - ADC12_IN1
 //	GPIOA->MODER &= ~ (GPIO_MODER_MODE0_0 | GPIO_MODER_MODE0_1 ); // Input
 
 	// PA15 connected to gate of mosfet
 	GPIOA->MODER &= ~ GPIO_MODER_MODE15_1; // GPOM
+
+
+	//
+	//SPI 2 - XPT2046
+	//
+
+	//PB13 as SCK
+
+	//PA10 as MISO
+	GPIOA->MODER  &=   ~(GPIO_MODER_MODE10_0);  //Alternate function mode
+	GPIOA->AFR[1] |= (5<<GPIO_AFRH_AFSEL10_Pos);//AFSEL10[0101] -> AF5
+
+	//PA11 as MOSI
+	GPIOA->MODER  &=   ~(GPIO_MODER_MODE11_0);
+	GPIOA->AFR[1] |= (5<<GPIO_AFRH_AFSEL11_Pos);
+
+	//PA1 as IRQ (XPT2046)
+	GPIOA->MODER  &=   ~( (GPIO_MODER_MODE1_0) | (GPIO_MODER_MODE1_1) );
+
+}
+
+void GPIOB_Setup()
+{
+	RCC->AHB2ENR |= RCC_AHB2ENR_GPIOBEN;
+
+	//
+	//SPI 2 - XPT2046
+	//
+
+	//PB13 as SCK
+	GPIOB->MODER  &=   ~(GPIO_MODER_MODE13_0);  //Alternate function mode
+	GPIOB->AFR[1] |= (5<<GPIO_AFRH_AFSEL13_Pos);//AFSEL10[0101] -> AF5
+	//PA10 as MISO
+	//PA11 as MOSI
+	//PA1 as IRQ (XPT2046)
 
 }
 
@@ -252,6 +287,82 @@ void Spi1_Send(uint8_t *byte, uint32_t length)
 }
 
 //
+// SPI 2 -XPT2046
+//
+
+void Spi2_Setup()
+{
+	RCC->APB1ENR1 |= RCC_APB1ENR1_SPI2EN;
+										//MSB first (by default)
+										//Clock polarity to 0 when idle (by default)
+										//The first clock transition is the first data capture edge (by default)
+										//Data size 8-bit (by default)
+										//Motorola frame format (by default)
+										//No NSS pulse (by default)
+	SPI2->CR1 |= SPI_CR1_MSTR;			//Master configuration
+	SPI2->CR1 |= (5<<SPI_CR1_BR_Pos);	//fPCLK/64 = ~2,65Mhz
+	SPI2->CR1 |= (1<<8) | (1<<9);  		//Software Slave Management
+	SPI2->CR2 = 0;
+	SPI2->CR2 |= SPI_CR2_FRXTH;//RXNE event is generated if the FIFO level is greater than or equal to 1/4 (8-bit)
+}
+
+void Spi2_Send(uint8_t *byte, uint32_t length)
+{
+
+    while (length > 0U)
+    {
+    	//not sure if necessary
+    	if (((SPI2->SR)&(1<<1)))//Wait for TXE bit to set -> This will indicate that the buffer is empty
+    	{
+    		*((volatile uint8_t *) &SPI2->DR) = (*byte);//Load the data into the Data Register
+    		byte++;
+    		length--;
+    	}
+
+    }
+
+    //not sure if necessary
+	//Wait for BSY bit to Reset -> This will indicate that SPI is not busy in communication
+	while (((SPI2->SR)&(1<<7))) {};
+}
+
+uint8_t Spi2_Receive_8b(uint8_t *data)
+{
+	if(SPI2->SR & SPI_SR_RXNE) // if there is data
+	{
+		*data = SPI2->DR;
+
+		return 1;
+	}
+	return 0 ;
+}
+
+void Spi2_Transreceive_8b(uint8_t *dataTx, uint16_t lengthTx, uint8_t *dataRx, uint16_t lengthRx )
+{
+    while (lengthTx > 0 || lengthRx > 0)
+    {
+    	if(lengthTx > 0)
+    	{
+    		if (((SPI2->SR)&(1<<1)))//Wait for TXE bit to set -> This will indicate that the buffer is empty
+    		{
+    			*((volatile uint8_t *) &SPI2->DR) = (*dataTx);//Load the data into the Data Register
+    			dataTx++;
+    			lengthTx--;
+    		}
+    	}
+    	if(lengthRx > 0)
+    	{
+    		if(SPI2->SR & SPI_SR_RXNE) // if there is data
+    		{
+    			*dataRx = SPI2->DR;
+    			dataRx++;
+    			lengthRx--;
+    		}
+    	}
+    }
+}
+
+//
 // SPI 3 - NRF24L01
 //
 
@@ -352,6 +463,20 @@ void TIM3_Setup()
 }
 
 //
+// EXTI 1
+//
+
+void EXTI1_Setup()
+{
+	NVIC_EnableIRQ(EXTI1_IRQn);
+
+	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
+	SYSCFG->EXTICR[0] |= SYSCFG_EXTICR1_EXTI1_PA; // Select PA1 as EXTI1
+	EXTI->IMR1 |= EXTI_IMR1_IM1; // Interrupt request is not masked
+	EXTI->FTSR1 |= EXTI_FTSR1_FT1; // Falling edge trigger enabled
+}
+
+//
 // INTERRUPT HANDLERS
 //
 
@@ -379,4 +504,15 @@ uint64_t ms;
 void SysTick_Handler()
 {
 	ms++;
+}
+
+//XPT2046 PENIRQ handler
+void EXTI1_IRQHandler()
+{
+	if(TouchState == XPT2046_IDLE)
+	{
+		TouchState = XPT2046_PRESAMPLING;
+	}
+
+	EXTI->PR1 |= EXTI_PR1_PIF1;
 }

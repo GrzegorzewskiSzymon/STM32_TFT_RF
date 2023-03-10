@@ -166,11 +166,35 @@ void XPT2046_Task()
 	}
 }
 
+void XPT2046_GetTouchPoint(uint16_t *X, uint16_t *Y)
+{
+	uint32_t AverageX = 0, AverageY = 0;
+	uint8_t i;
+
+	for(i = 0; i < XPT2046_MAX_SAMPLES; i++)
+	{
+		AverageX += TouchSamples[0][i];
+		AverageY += TouchSamples[1][i];
+	}
+
+	*X = AverageX / XPT2046_MAX_SAMPLES;
+	*Y = AverageY / XPT2046_MAX_SAMPLES;
+}
+
+// Check if screen was touched - machine state has to be in TOUCHED state
+uint8_t XPT2046_IsTouched(void)
+{
+	if(TouchState == XPT2046_TOUCHED)
+		return 1;
+
+	return 0;
+}
+
 //
 // IRQ
 //
 
 void XPT2046_IRQ_Setup()
 {
-	EXTI3_Setup();
+	EXTI1_Setup();
 }

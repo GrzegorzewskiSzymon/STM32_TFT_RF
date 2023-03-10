@@ -5,6 +5,7 @@
 #include "../Inc/Libraries/PowerManagement/BatteryManagement.h"
 #include "../Inc/Libraries/TFT_ILI9341/TFT_ILI9341.h"
 #include "../Inc/Libraries/TFT_GUI/TFT_GUI.h"
+#include "../Inc/Libraries/TouchScreen/XPT2046.h"
 
 
 uint8_t rxAddress[] = {0xEE, 0xDD, 0xCC, 0xBB, 0xAA};
@@ -16,6 +17,7 @@ int main(void)
 	ClockFrequency_Setup();
 
 	GPIOA_Setup();
+	GPIOB_Setup();
 	GPIOC_Setup();
 
 	Spi_NRF24L01_Setup();
@@ -30,7 +32,9 @@ int main(void)
 	NRF24L01_Mode_Rx(rxAddress, 10);
 
 	Spi_ILI9341_Setup();
+	Spi_XPT2046_Setup();
 	SPI_ILI9341_ENABLE;
+	SPI_XPT2046_ENABLE;
 
 	GUI_SetDefaultSettings();
 	ILI9341_Init();
@@ -39,8 +43,18 @@ int main(void)
 	ADC1_Setup();
 	TIM3_Setup();
 
+	XPT2046_Setup();
+	XPT2046_IRQ_Setup();
+
 	while(1)
 	{
+		XPT2046_Task();
+
+		if(XPT2046_IsTouched())
+		{
+			XPT2046_GetTouchPoint(&posX, &posY);
+		}
+
 
 		if (NRF24L01_isDataAvailable(1))
 		{

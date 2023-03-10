@@ -43,9 +43,20 @@
 #define ILI9341_DC_DATA    GPIOA->BSRR |= GPIO_BSRR_BS9; //HIGH - Data
 
 //
+// SPI 2 - XPT2046
+//
+
+#define SPI_XPT2046_ENABLE  SPI2->CR1 |=  SPI_CR1_SPE //SPI  enable
+#define SPI_XPT2046_DISABLE SPI2->CR1 &=~ SPI_CR1_SPE //SPI disable
+//PA1
+#define XPT2046_PENIRQ_IS_HIGH (GPIOA->IDR & GPIO_IDR_IDR_1)
+
+
+//
 // Functions
 //
 void GPIOA_Setup();
+void GPIOB_Setup();
 void GPIOC_Setup();
 
 void ClockFrequency_Setup();
@@ -58,11 +69,18 @@ void TIM3_Setup();
 void Spi1_Setup();
 void Spi1_Send(uint8_t *byte, uint32_t length);
 
+void Spi2_Setup();
+void Spi2_Send(uint8_t *byte, uint32_t length);
+uint8_t Spi2_Receive_8b(uint8_t *data);
+void Spi2_Transreceive_8b(uint8_t *dataTx, uint16_t lengthTx, uint8_t *dataRx, uint16_t lengthRx);
+
 void Spi3_Setup();
 uint8_t Spi3_Read8();
 void Spi3_Read8_Multi(uint8_t *dataRx, uint16_t cnt);
 void Spi3_ClearRxBuff();
 void Spi3_Send(uint8_t *byte, uint32_t length);
+
+void EXTI1_Setup();
 
 extern uint64_t ms;//reference time counted from the "beginning"
 extern uint16_t battRawVoltageData;

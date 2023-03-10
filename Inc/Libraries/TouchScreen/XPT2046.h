@@ -37,4 +37,6 @@ void Spi_XPT2046_Send(uint8_t *byte, uint32_t length);
 void XPT2046_IRQ_Setup();
 void XPT2046_Setup();
 void XPT2046_Task();
+void XPT2046_GetTouchPoint(uint16_t *X, uint16_t *Y);
+uint8_t XPT2046_IsTouched(void);
 #endif /* LIBRARIES_TOUCHSCREEN_XPT2046_H_ */
