@@ -12,9 +12,11 @@
 #include "../TFT_ILI9341/TFT_ILI9341.h"
 #include "../PowerManagement/BatteryManagement.h"
 #include "SettingsImg.c.h"
+#include "../TouchScreen/XPT2046.h"
 
 GUI_Data        guiInfo;
 enum GUI_Layers guiSelectedLayer;
+enum GUI_Layers guiAlreadyDisplayedLayer;
 
 void GUI_SetButton(GUI_BUTTON *button, uint16_t posX,uint16_t posY, uint16_t width, uint16_t height, uint8_t *imgPointer)
 {
@@ -58,12 +60,6 @@ void GUI_DisplayBatteryStatus(uint16_t posX,uint16_t posY)
 GUI_BUTTON guiButton_Settings;
 void GUI_DisplayDesktopLayer()
 {
-
-	if(guiSelectedLayer != DESKTOP)
-	{
-		return;
-	}
-
 	ILI9341_DrawPixel(0, 0, tftWidth, tftHeight, guiInfo.backgroundColor);
 
 	if(guiInfo.displayRotation == VERTICAL)
@@ -96,4 +92,33 @@ void GUI_DisplayDesktopLayer()
 
 }
 
+void GUI_Display()
+{
+	switch (guiSelectedLayer) {
+		case DESKTOP:
+			GUI_DisplayDesktopLayer();
+			guiAlreadyDisplayedLayer = DESKTOP;
+			break;
+		case SETTINGS:
 
+			break;
+	}
+}
+
+void GUI_IsButtonTouched()
+{
+
+}
+
+void GUI_Run()
+{
+	if(guiAlreadyDisplayedLayer != guiSelectedLayer) //If Layer was changed and need to be displayed
+	{
+		GUI_Display();
+	}
+
+	if(TouchState == XPT2046_TOUCHED)
+	{
+		GUI_IsButtonTouched();
+	}
+}

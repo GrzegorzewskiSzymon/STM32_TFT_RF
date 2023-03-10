@@ -46,7 +46,9 @@ typedef struct
 }GUI_DISPLAY_BATTERY_DATA;
 extern GUI_DISPLAY_BATTERY_DATA batteryDisplayData;
 
+void GUI_Run();
 void GUI_SetDefaultSettings();
 void GUI_DisplayDesktopLayer();
+void GUI_DisplayBatteryStatus(uint16_t posX,uint16_t posY);
 
 #endif /* LIBRARIES_TFT_GUI_TFT_GUI_H_ */

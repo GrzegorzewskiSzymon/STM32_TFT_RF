@@ -48,6 +48,7 @@ int main(void)
 
 	while(1)
 	{
+		GUI_Run();
 		XPT2046_Task();
 
 		if(XPT2046_IsTouched())
