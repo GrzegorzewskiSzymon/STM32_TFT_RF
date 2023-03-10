@@ -4,19 +4,21 @@
  *  Created on: 4 Mar 2023
  *      Author: Szymon Grzegorzewski
  */
-
-
 #include <stdint.h>
 #include "stm32g431xx.h"
 #include "TFT_GUI.h"
 #include "../TFT_ILI9341/TFT_ILI9341.h"
 #include "../PowerManagement/BatteryManagement.h"
-#include "SettingsImg.c.h"
 #include "../TouchScreen/XPT2046.h"
+#include "SettingsImg.h"
+#include "ReturnImg.h"
 
 GUI_Data        guiInfo;
 enum GUI_Layers guiSelectedLayer;
 enum GUI_Layers guiAlreadyDisplayedLayer;
+
+GUI_BUTTON guiButton_Settings;
+GUI_BUTTON guiButton_Return;
 
 void GUI_SetButton(GUI_BUTTON *button, uint16_t posX,uint16_t posY, uint16_t width, uint16_t height, uint8_t *imgPointer)
 {
@@ -57,7 +59,6 @@ void GUI_DisplayBatteryStatus(uint16_t posX,uint16_t posY)
 }
 
 
-GUI_BUTTON guiButton_Settings;
 void GUI_DisplayDesktopLayer()
 {
 	ILI9341_DrawPixel(0, 0, tftWidth, tftHeight, guiInfo.backgroundColor);
@@ -91,6 +92,23 @@ void GUI_DisplayDesktopLayer()
 	ILI9341_DrawRoundedRectangleButton(guiButton_Settings);
 
 }
+
+void GUI_DisplaySettingsLayer()
+{
+	ILI9341_DrawPixel(0, 0, tftWidth, tftHeight, guiInfo.backgroundColor);
+
+	if(guiInfo.displayRotation == VERTICAL)
+	{
+		GUI_SetButton(&guiButton_Return, 0, 0, 50, 50, (uint8_t *)returnImg);
+	}
+	else //Horizontal
+	{
+		GUI_SetButton(&guiButton_Return, 0, 0, 50, 50, (uint8_t *)returnImg);
+	}
+	ILI9341_DrawRoundedRectangleButton(guiButton_Return);
+}
+
+
 
 void GUI_Display()
 {

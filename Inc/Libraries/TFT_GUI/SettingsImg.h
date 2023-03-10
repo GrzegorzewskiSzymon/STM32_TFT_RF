@@ -5,8 +5,8 @@
  *      Author: Szymon Grzegorzewski
  */
 
-#ifndef LIBRARIES_TFT_GUI_SETTINGSIMG_C_H_
-#define LIBRARIES_TFT_GUI_SETTINGSIMG_C_H_
+#ifndef LIBRARIES_TFT_GUI_SETTINGSIMG_H_
+#define LIBRARIES_TFT_GUI_SETTINGSIMG_H_
 
 #include <stdint.h>
 const uint8_t SettingsImg[5000] = {
@@ -325,4 +325,4 @@ const uint8_t SettingsImg[5000] = {
 0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,};
 
 
-#endif /* LIBRARIES_TFT_GUI_SETTINGSIMG_C_H_ */
+#endif /* LIBRARIES_TFT_GUI_SETTINGSIMG_H_ */
