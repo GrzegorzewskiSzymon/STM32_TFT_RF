@@ -61,6 +61,10 @@ void GUI_DisplayBatteryStatus(uint16_t posX,uint16_t posY)
 
 void GUI_DisplayDesktopLayer()
 {
+	/*Exclude possibility of occurring interrupt witch another drawing function (TIM3 displaying battery voltage)
+	 *  while displaying this layer*/
+	__disable_irq();
+
 	ILI9341_DrawPixel(0, 0, tftWidth, tftHeight, guiInfo.backgroundColor);
 
 	if(guiInfo.displayRotation == VERTICAL)
@@ -91,10 +95,15 @@ void GUI_DisplayDesktopLayer()
 	}
 	ILI9341_DrawRoundedRectangleButton(guiButton_Settings);
 
+	__enable_irq(); //When everything is drawn enable interrupts
 }
 
 void GUI_DisplaySettingsLayer()
 {
+	/*Exclude possibility of occurring interrupt witch another drawing function (TIM3 displaying battery voltage)
+	 *  while displaying this layer*/
+	__disable_irq();
+
 	ILI9341_DrawPixel(0, 0, tftWidth, tftHeight, guiInfo.backgroundColor);
 
 	if(guiInfo.displayRotation == VERTICAL)
@@ -106,9 +115,9 @@ void GUI_DisplaySettingsLayer()
 		GUI_SetButton(&guiButton_Return, 0, 0, 50, 50, (uint8_t *)returnImg);
 	}
 	ILI9341_DrawRoundedRectangleButton(guiButton_Return);
+
+	__enable_irq();//When everything is drawn enable interrupts
 }
-
-
 
 void GUI_Display()
 {
