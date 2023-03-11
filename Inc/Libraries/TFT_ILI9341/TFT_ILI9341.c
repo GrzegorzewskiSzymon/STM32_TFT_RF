@@ -357,10 +357,10 @@ void ILI9341_DrawRoundedRectangle(uint16_t posX, uint16_t posY, uint16_t width, 
 					ILI9341_DrawPixel(i+width-radius-1, j+radius, 1, 1, color);
 				//Left down corner
 				if(i<posX && j>posY)
-					ILI9341_DrawPixel(i+radius, j+width-radius-1, 1, 1, color);
+					ILI9341_DrawPixel(i+radius, j+height-radius-1, 1, 1, color);
 				//Right down corner
 				if(i>posX && j>posY)
-					ILI9341_DrawPixel(i+width-radius-1, j+width-radius-1, 1, 1, color);
+					ILI9341_DrawPixel(i+width-radius-1, j+height-radius-1, 1, 1, color);
 			}
 		}
 	}
@@ -406,14 +406,15 @@ void ILI9341_DrawRoundedRectangleButton(GUI_BUTTON button)
 					ILI9341_DrawPixel(i+button.width-radius-1, j+radius, 1, 1, color);
 				//Left down corner
 				if(i<button.posX && j>button.posY)
-					ILI9341_DrawPixel(i+radius, j+button.width-radius-1, 1, 1, color);
+					ILI9341_DrawPixel(i+radius, j+button.height-radius-1, 1, 1, color);
 				//Right down corner
 				if(i>button.posX && j>button.posY)
-					ILI9341_DrawPixel(i+button.width-radius-1, j+button.width-radius-1, 1, 1, color);
+					ILI9341_DrawPixel(i+button.width-radius-1, j+button.height-radius-1, 1, 1, color);
 			}
 		}
 	}
-	ILI9341_DrawImg(button.posX, button.posY, 50, 50, button.imgPointer, 1);
+	if(button.imgPointer)
+		ILI9341_DrawImg(button.posX, button.posY, 50, 50, button.imgPointer, 1);
 }
 
 void ILI9341_DrawChar(int x, int y, char chr, uint16_t color,uint16_t backgroundColor, uint8_t isBackgroundColorUsed)
