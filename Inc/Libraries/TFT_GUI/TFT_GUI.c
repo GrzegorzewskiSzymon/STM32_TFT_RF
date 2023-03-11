@@ -118,18 +118,39 @@ void GUI_Display()
 			guiAlreadyDisplayedLayer = DESKTOP;
 			break;
 		case SETTINGS:
-
+			GUI_DisplaySettingsLayer();
+			guiAlreadyDisplayedLayer = SETTINGS;
 			break;
 	}
 }
 
-void GUI_IsButtonTouched()
+uint16_t posY, posX;
+uint8_t GUI_IsButtonTouched(GUI_BUTTON button)
 {
-
+	if(button.posX+button.width  > posX && button.posX < posX &&
+	   button.posY+button.height > posY && button.posY < posY)
+		return 1;
+	return 0;
 }
+void GUI_TouchCheck()
+{
+	switch (guiSelectedLayer) {
+		case DESKTOP:
+			if(GUI_IsButtonTouched(guiButton_Settings))
+				guiSelectedLayer = SETTINGS;
 
+			break;
+		case SETTINGS:
+			if(GUI_IsButtonTouched(guiButton_Return))
+				guiSelectedLayer = DESKTOP;
+			break;
+	}
+}
 void GUI_Run()
 {
+	if(XPT2046_IsTouched())
+		XPT2046_GetTouchPoint(&posX, &posY);
+
 	if(guiAlreadyDisplayedLayer != guiSelectedLayer) //If Layer was changed and need to be displayed
 	{
 		GUI_Display();
@@ -137,6 +158,6 @@ void GUI_Run()
 
 	if(TouchState == XPT2046_TOUCHED)
 	{
-		GUI_IsButtonTouched();
+		GUI_TouchCheck();
 	}
 }

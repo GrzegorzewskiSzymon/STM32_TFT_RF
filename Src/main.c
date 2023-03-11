@@ -11,7 +11,7 @@
 uint8_t rxAddress[] = {0xEE, 0xDD, 0xCC, 0xBB, 0xAA};
 uint8_t rxBuff[32];
 
-uint16_t posY, posX;
+
 int main(void)
 {
 	ClockFrequency_Setup();
@@ -50,12 +50,6 @@ int main(void)
 	{
 		GUI_Run();
 		XPT2046_Task();
-
-		if(XPT2046_IsTouched())
-		{
-			XPT2046_GetTouchPoint(&posX, &posY);
-		}
-
 
 		if (NRF24L01_isDataAvailable(1))
 		{
