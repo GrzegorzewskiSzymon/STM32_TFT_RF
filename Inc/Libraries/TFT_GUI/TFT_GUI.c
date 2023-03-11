@@ -12,6 +12,7 @@
 #include "../TouchScreen/XPT2046.h"
 #include "SettingsImg.h"
 #include "ReturnImg.h"
+#include "LedRGB.h"
 
 GUI_Data        guiInfo;
 enum GUI_Layers guiSelectedLayer;
@@ -19,6 +20,8 @@ enum GUI_Layers guiAlreadyDisplayedLayer;
 
 GUI_BUTTON guiButton_Settings;
 GUI_BUTTON guiButton_Return;
+GUI_BUTTON guiButton_LedRGB;
+
 
 void GUI_SetButton(GUI_BUTTON *button, uint16_t posX,uint16_t posY, uint16_t width, uint16_t height, uint8_t *imgPointer)
 {
@@ -70,7 +73,7 @@ void GUI_DisplayDesktopLayer()
 	if(guiInfo.displayRotation == VERTICAL)
 	{
 		GUI_SetButton(&guiButton_Settings,50,40,50,50, (uint8_t*)SettingsImg);
-		ILI9341_DrawRoundedRectangle(140, 40, 50, 50, 10, ILI9341_BLACK);
+		GUI_SetButton(&guiButton_LedRGB, 140, 40, 50, 50, (uint8_t*)LedRGBImg);
 
 		ILI9341_DrawRoundedRectangle(50, 135, 50, 50, 10, ILI9341_BLACK);
 		ILI9341_DrawRoundedRectangle(140, 135, 50, 50, 10, ILI9341_BLACK);
@@ -83,7 +86,7 @@ void GUI_DisplayDesktopLayer()
 	else //Horizontal
 	{
 		GUI_SetButton(&guiButton_Settings,40,50,50,50, (uint8_t*)SettingsImg);
-		ILI9341_DrawRoundedRectangle(40, 140, 50, 50, 10, ILI9341_BLACK);
+		GUI_SetButton(&guiButton_LedRGB, 40, 140, 50, 50, (uint8_t*)LedRGBImg);
 
 		ILI9341_DrawRoundedRectangle(135, 50, 50, 50, 10, ILI9341_BLACK);
 		ILI9341_DrawRoundedRectangle(135, 140, 50, 50, 10, ILI9341_BLACK);
@@ -94,6 +97,7 @@ void GUI_DisplayDesktopLayer()
 		batteryDisplayData.posY = 3;
 	}
 	ILI9341_DrawRoundedRectangleButton(guiButton_Settings);
+	ILI9341_DrawRoundedRectangleButton(guiButton_LedRGB);
 
 	__enable_irq(); //When everything is drawn enable interrupts
 }
@@ -119,16 +123,42 @@ void GUI_DisplaySettingsLayer()
 	__enable_irq();//When everything is drawn enable interrupts
 }
 
+void GUI_DisplayLedRGBLayer()
+{
+	/*Exclude possibility of occurring interrupt witch another drawing function (TIM3 displaying battery voltage)
+	 *  while displaying this layer*/
+	__disable_irq();
+
+	ILI9341_DrawPixel(0, 0, tftWidth, tftHeight, guiInfo.backgroundColor);
+
+	if(guiInfo.displayRotation == VERTICAL)
+	{
+		GUI_SetButton(&guiButton_Return, 0, 0, 50, 50, (uint8_t *)returnImg);
+	}
+	else //Horizontal
+	{
+		GUI_SetButton(&guiButton_Return, 0, 0, 50, 50, (uint8_t *)returnImg);
+	}
+	ILI9341_DrawRoundedRectangleButton(guiButton_Return);
+
+	__enable_irq();//When everything is drawn enable interrupts
+}
+
 void GUI_Display()
 {
 	switch (guiSelectedLayer) {
-		case DESKTOP:
+		case LAYER_DESKTOP:
 			GUI_DisplayDesktopLayer();
-			guiAlreadyDisplayedLayer = DESKTOP;
+			guiAlreadyDisplayedLayer = LAYER_DESKTOP;
 			break;
-		case SETTINGS:
+		case LAYER_SETTINGS:
 			GUI_DisplaySettingsLayer();
-			guiAlreadyDisplayedLayer = SETTINGS;
+			guiAlreadyDisplayedLayer = LAYER_SETTINGS;
+			break;
+
+		case LAYER_LEDRGB:
+			GUI_DisplayLedRGBLayer();
+			guiAlreadyDisplayedLayer = LAYER_LEDRGB;
 			break;
 	}
 }
@@ -144,14 +174,21 @@ uint8_t GUI_IsButtonTouched(GUI_BUTTON button)
 void GUI_TouchCheck()
 {
 	switch (guiSelectedLayer) {
-		case DESKTOP:
+		case LAYER_DESKTOP:
 			if(GUI_IsButtonTouched(guiButton_Settings))
-				guiSelectedLayer = SETTINGS;
-
+				guiSelectedLayer = LAYER_SETTINGS;
+			else if(GUI_IsButtonTouched(guiButton_LedRGB))
+				guiSelectedLayer = LAYER_LEDRGB;
 			break;
-		case SETTINGS:
+
+		case LAYER_SETTINGS:
 			if(GUI_IsButtonTouched(guiButton_Return))
-				guiSelectedLayer = DESKTOP;
+				guiSelectedLayer = LAYER_DESKTOP;
+			break;
+
+		case LAYER_LEDRGB:
+			if(GUI_IsButtonTouched(guiButton_Return))
+				guiSelectedLayer = LAYER_DESKTOP;
 			break;
 	}
 }

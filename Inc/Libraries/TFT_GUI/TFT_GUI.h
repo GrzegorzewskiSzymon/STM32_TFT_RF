@@ -9,8 +9,9 @@
 
 enum GUI_Layers
 {
-	DESKTOP = 0,
-	SETTINGS
+	LAYER_DESKTOP = 0,
+	LAYER_SETTINGS,
+	LAYER_LEDRGB
 
 };
 
