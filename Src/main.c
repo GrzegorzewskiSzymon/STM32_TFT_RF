@@ -38,7 +38,6 @@ int main(void)
 
 	GUI_SetDefaultSettings();
 	ILI9341_Init();
-	GUI_DisplayDesktopLayer();
 
 	ADC1_Setup();
 	TIM3_Setup();

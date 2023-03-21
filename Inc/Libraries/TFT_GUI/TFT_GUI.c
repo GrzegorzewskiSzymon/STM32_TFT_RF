@@ -16,12 +16,15 @@
 
 GUI_Data        guiInfo;
 enum GUI_Layers guiSelectedLayer;
-enum GUI_Layers guiAlreadyDisplayedLayer;
+enum GUI_Layers guiAlreadyDisplayedLayer = 1; //Need to be different than LAYER_DESKTOP (0)
+uint8_t isReadyToReadNewTouch = 1;            //If touch was released (to prevent multiple reads of one touch)
+uint8_t needToRedrawPartsOfLayer = 0;         //Such as small texts
+uint8_t tmpDisplayRotation = VERTICAL;
 
 GUI_BUTTON guiButton_Settings;
 GUI_BUTTON guiButton_Return;
 GUI_BUTTON guiButton_LedRGB;
-
+GUI_BUTTON guiButton_Rotation;
 
 void GUI_SetButton(GUI_BUTTON *button, uint16_t posX,uint16_t posY, uint16_t width, uint16_t height, uint8_t *imgPointer)
 {
@@ -36,6 +39,15 @@ void GUI_SetDefaultSettings()
 {
 	guiInfo.backgroundColor = ILI9341_DARKGREY;
 	guiInfo.displayRotation = VERTICAL;
+}
+
+uint16_t posY, posX;
+uint8_t GUI_IsButtonTouched(GUI_BUTTON button)
+{
+	if(button.posX+button.width  > posX && button.posX < posX &&
+	   button.posY+button.height > posY && button.posY < posY)
+		return 1;
+	return 0;
 }
 
 GUI_DISPLAY_BATTERY_DATA batteryDisplayData;
@@ -64,42 +76,45 @@ void GUI_DisplayBatteryStatus(uint16_t posX,uint16_t posY)
 
 void GUI_DisplayDesktopLayer()
 {
-	/*Exclude possibility of occurring interrupt witch another drawing function (TIM3 displaying battery voltage)
-	 *  while displaying this layer*/
-	__disable_irq();
 
-	ILI9341_DrawPixel(0, 0, tftWidth, tftHeight, guiInfo.backgroundColor);
-
-	if(guiInfo.displayRotation == VERTICAL)
+	if(guiAlreadyDisplayedLayer != guiSelectedLayer) //If Layer was changed and need to be displayed
 	{
-		GUI_SetButton(&guiButton_Settings,50,40,50,50, (uint8_t*)SettingsImg);
-		GUI_SetButton(&guiButton_LedRGB, 140, 40, 50, 50, (uint8_t*)LedRGBImg);
+		/*Exclude possibility of occurring interrupt witch another drawing function (TIM3 displaying battery voltage)
+		 *  while displaying this layer*/
+		__disable_irq();
+		ILI9341_DrawPixel(0, 0, tftWidth, tftHeight, guiInfo.backgroundColor);
 
-		ILI9341_DrawRoundedRectangle(50, 135, 50, 50, 10, ILI9341_BLACK);
-		ILI9341_DrawRoundedRectangle(140, 135, 50, 50, 10, ILI9341_BLACK);
+		if(guiInfo.displayRotation == VERTICAL)
+		{
+			GUI_SetButton(&guiButton_Settings,50,40,50,50, (uint8_t*)SettingsImg);
+			GUI_SetButton(&guiButton_LedRGB, 140, 40, 50, 50, (uint8_t*)LedRGBImg);
 
-		ILI9341_DrawRoundedRectangle(50, 230, 50, 50, 10, ILI9341_BLACK);
-		ILI9341_DrawRoundedRectangle(140, 230, 50, 50, 10, ILI9341_BLACK);
-		batteryDisplayData.posX = 170;
-		batteryDisplayData.posY = 3;
+			ILI9341_DrawRoundedRectangle(50, 135, 50, 50, 10, ILI9341_BLACK);
+			ILI9341_DrawRoundedRectangle(140, 135, 50, 50, 10, ILI9341_BLACK);
+
+			ILI9341_DrawRoundedRectangle(50, 230, 50, 50, 10, ILI9341_BLACK);
+			ILI9341_DrawRoundedRectangle(140, 230, 50, 50, 10, ILI9341_BLACK);
+			batteryDisplayData.posX = 170;
+			batteryDisplayData.posY = 3;
+		}
+		else //Horizontal
+		{
+			GUI_SetButton(&guiButton_Settings,40,50,50,50, (uint8_t*)SettingsImg);
+			GUI_SetButton(&guiButton_LedRGB, 40, 140, 50, 50, (uint8_t*)LedRGBImg);
+
+			ILI9341_DrawRoundedRectangle(135, 50, 50, 50, 10, ILI9341_BLACK);
+			ILI9341_DrawRoundedRectangle(135, 140, 50, 50, 10, ILI9341_BLACK);
+
+			ILI9341_DrawRoundedRectangle(230, 50, 50, 50, 10, ILI9341_BLACK);
+			ILI9341_DrawRoundedRectangle(230, 140, 50, 50, 10, ILI9341_BLACK);
+			batteryDisplayData.posX = 250;
+			batteryDisplayData.posY = 3;
+		}
+		ILI9341_DrawRoundedRectangleButton(guiButton_Settings);
+		ILI9341_DrawRoundedRectangleButton(guiButton_LedRGB);
+
+		__enable_irq(); //When everything is drawn enable interrupts
 	}
-	else //Horizontal
-	{
-		GUI_SetButton(&guiButton_Settings,40,50,50,50, (uint8_t*)SettingsImg);
-		GUI_SetButton(&guiButton_LedRGB, 40, 140, 50, 50, (uint8_t*)LedRGBImg);
-
-		ILI9341_DrawRoundedRectangle(135, 50, 50, 50, 10, ILI9341_BLACK);
-		ILI9341_DrawRoundedRectangle(135, 140, 50, 50, 10, ILI9341_BLACK);
-
-		ILI9341_DrawRoundedRectangle(230, 50, 50, 50, 10, ILI9341_BLACK);
-		ILI9341_DrawRoundedRectangle(230, 140, 50, 50, 10, ILI9341_BLACK);
-		batteryDisplayData.posX = 250;
-		batteryDisplayData.posY = 3;
-	}
-	ILI9341_DrawRoundedRectangleButton(guiButton_Settings);
-	ILI9341_DrawRoundedRectangleButton(guiButton_LedRGB);
-
-	__enable_irq(); //When everything is drawn enable interrupts
 }
 
 void GUI_DisplaySettingsLayer()
@@ -108,17 +123,37 @@ void GUI_DisplaySettingsLayer()
 	 *  while displaying this layer*/
 	__disable_irq();
 
-	ILI9341_DrawPixel(0, 0, tftWidth, tftHeight, guiInfo.backgroundColor);
+	if(guiAlreadyDisplayedLayer != guiSelectedLayer) //If Layer was changed and need to be displayed
+	{
+		ILI9341_DrawPixel(0, 0, tftWidth, tftHeight, guiInfo.backgroundColor);
 
-	if(guiInfo.displayRotation == VERTICAL)
-	{
-		GUI_SetButton(&guiButton_Return, 0, 0, 50, 50, (uint8_t *)returnImg);
+		if(guiInfo.displayRotation == VERTICAL)
+		{
+			GUI_SetButton(&guiButton_Return, 0, 0, 50, 50, (uint8_t *)returnImg);
+
+			GUI_SetButton(&guiButton_Rotation, 70, 70, 80, 20, 0);
+			ILI9341_DrawString(2, guiButton_Rotation.posY + (guiButton_Rotation.height/2)-4, "Rotation", ILI9341_BLACK, guiInfo.backgroundColor, 1);
+		}
+		else //Horizontal
+		{
+			GUI_SetButton(&guiButton_Return, 0, 0, 50, 50, (uint8_t *)returnImg);
+
+			GUI_SetButton(&guiButton_Rotation, 70, 70, 80, 20, 0);
+			ILI9341_DrawString(2, guiButton_Rotation.posY + (guiButton_Rotation.height/2)-4, "Rotation", ILI9341_BLACK, guiInfo.backgroundColor, 1);
+		}
+		ILI9341_DrawRoundedRectangleButton(guiButton_Return);
+		ILI9341_DrawRoundedRectangle(guiButton_Rotation.posX, guiButton_Rotation.posY, guiButton_Rotation.width, guiButton_Rotation.height, 4, ILI9341_BLACK);
 	}
-	else //Horizontal
+
+	//Draw rotation button
+	if(needToRedrawPartsOfLayer || guiAlreadyDisplayedLayer != guiSelectedLayer)
 	{
-		GUI_SetButton(&guiButton_Return, 0, 0, 50, 50, (uint8_t *)returnImg);
+		if(tmpDisplayRotation == VERTICAL)
+			ILI9341_DrawString(guiButton_Rotation.posX + 5, guiButton_Rotation.posY + (guiButton_Rotation.height/2)-4, "VERTICAL", ILI9341_BLACK, guiInfo.backgroundColor, 1);
+		else
+			ILI9341_DrawString(guiButton_Rotation.posX + 5, guiButton_Rotation.posY + (guiButton_Rotation.height/2)-4, "HORIZONTAL", ILI9341_BLACK, guiInfo.backgroundColor, 1);
+		needToRedrawPartsOfLayer = 0;
 	}
-	ILI9341_DrawRoundedRectangleButton(guiButton_Return);
 
 	__enable_irq();//When everything is drawn enable interrupts
 }
@@ -129,18 +164,20 @@ void GUI_DisplayLedRGBLayer()
 	 *  while displaying this layer*/
 	__disable_irq();
 
-	ILI9341_DrawPixel(0, 0, tftWidth, tftHeight, guiInfo.backgroundColor);
-
-	if(guiInfo.displayRotation == VERTICAL)
+	if(guiAlreadyDisplayedLayer != guiSelectedLayer) //If Layer was changed and need to be displayed
 	{
-		GUI_SetButton(&guiButton_Return, 0, 0, 50, 50, (uint8_t *)returnImg);
-	}
-	else //Horizontal
-	{
-		GUI_SetButton(&guiButton_Return, 0, 0, 50, 50, (uint8_t *)returnImg);
-	}
-	ILI9341_DrawRoundedRectangleButton(guiButton_Return);
+		ILI9341_DrawPixel(0, 0, tftWidth, tftHeight, guiInfo.backgroundColor);
 
+		if(guiInfo.displayRotation == VERTICAL)
+		{
+			GUI_SetButton(&guiButton_Return, 0, 0, 50, 50, (uint8_t *)returnImg);
+		}
+		else //Horizontal
+		{
+			GUI_SetButton(&guiButton_Return, 0, 0, 50, 50, (uint8_t *)returnImg);
+		}
+		ILI9341_DrawRoundedRectangleButton(guiButton_Return);
+	}
 	__enable_irq();//When everything is drawn enable interrupts
 }
 
@@ -148,9 +185,15 @@ void GUI_Display()
 {
 	switch (guiSelectedLayer) {
 		case LAYER_DESKTOP:
+			if(guiInfo.displayRotation != tmpDisplayRotation)
+			{
+				guiInfo.displayRotation = tmpDisplayRotation;
+				ILI9341_setRotation();
+			}
 			GUI_DisplayDesktopLayer();
 			guiAlreadyDisplayedLayer = LAYER_DESKTOP;
 			break;
+
 		case LAYER_SETTINGS:
 			GUI_DisplaySettingsLayer();
 			guiAlreadyDisplayedLayer = LAYER_SETTINGS;
@@ -163,47 +206,64 @@ void GUI_Display()
 	}
 }
 
-uint16_t posY, posX;
-uint8_t GUI_IsButtonTouched(GUI_BUTTON button)
-{
-	if(button.posX+button.width  > posX && button.posX < posX &&
-	   button.posY+button.height > posY && button.posY < posY)
-		return 1;
-	return 0;
-}
 void GUI_TouchCheck()
 {
 	switch (guiSelectedLayer) {
 		case LAYER_DESKTOP:
 			if(GUI_IsButtonTouched(guiButton_Settings))
+			{
 				guiSelectedLayer = LAYER_SETTINGS;
+			}
 			else if(GUI_IsButtonTouched(guiButton_LedRGB))
+			{
 				guiSelectedLayer = LAYER_LEDRGB;
+			}
 			break;
 
 		case LAYER_SETTINGS:
 			if(GUI_IsButtonTouched(guiButton_Return))
+			{
 				guiSelectedLayer = LAYER_DESKTOP;
+			}
+			if(GUI_IsButtonTouched(guiButton_Rotation))
+			{
+				if(tmpDisplayRotation == VERTICAL )
+					tmpDisplayRotation = HORIZONTAL;
+				else
+					tmpDisplayRotation = VERTICAL;
+				needToRedrawPartsOfLayer = 1;
+			}
 			break;
 
 		case LAYER_LEDRGB:
 			if(GUI_IsButtonTouched(guiButton_Return))
+			{
 				guiSelectedLayer = LAYER_DESKTOP;
+			}
 			break;
 	}
 }
+
 void GUI_Run()
 {
 	if(XPT2046_IsTouched())
-		XPT2046_GetTouchPoint(&posX, &posY);
-
-	if(guiAlreadyDisplayedLayer != guiSelectedLayer) //If Layer was changed and need to be displayed
 	{
-		GUI_Display();
-	}
+		if(guiInfo.displayRotation == VERTICAL)
+			XPT2046_GetTouchPoint(&posX, &posY);
+		else
+		{
+			XPT2046_GetTouchPoint(&posY, &posX);
+			posX = tftWidth - posX;
+		}
 
-	if(TouchState == XPT2046_TOUCHED)
-	{
-		GUI_TouchCheck();
+		if(isReadyToReadNewTouch)
+		{
+			GUI_TouchCheck();
+			isReadyToReadNewTouch = 0; //Not ready
+		}
 	}
+	else
+		isReadyToReadNewTouch = 1;//Ready
+
+	GUI_Display();
 }
