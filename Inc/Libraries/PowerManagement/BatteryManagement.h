@@ -28,6 +28,6 @@ typedef struct
 extern BATTERY_STATS battery;
 
 void CalculateBattVolatage();
-
+void TurnOffIfBatteryIsFlat();
 
 #endif /* LIBRARIES_POWERMANAGEMENT_BATTERYMANAGEMENT_H_ */

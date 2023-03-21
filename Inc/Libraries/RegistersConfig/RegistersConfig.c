@@ -484,6 +484,7 @@ void EXTI1_Setup()
 void TIM3_IRQHandler()
 {
 	CalculateBattVolatage(); //Calculate battery level from previous sample
+	TurnOffIfBatteryIsFlat();
 
 	ADC1_StartConversion(); //Take a new sample
 

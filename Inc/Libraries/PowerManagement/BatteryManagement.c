@@ -28,3 +28,8 @@ void CalculateBattVolatage()
 	battery.voltagePercentage = Map(battery.rawVoltageData, MAX_BATT_VALUE*0.88, MAX_BATT_VALUE, 0, 100);//MAX_BATT_VALUE*0.88 = 3,7V
 }
 
+void TurnOffIfBatteryIsFlat()
+{
+	if(battery.voltageInteger < 4 || battery.voltageFract <= 700)
+		MOSFETS_OFF;
+}
