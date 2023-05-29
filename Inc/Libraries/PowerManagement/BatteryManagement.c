@@ -18,19 +18,30 @@ long Map(long x, long in_min, long in_max, long out_min, long out_max)
 
 void CalculateBattVolatage()
 {
-	long data;
+	if(!battery.isReadyToCalculateFlag)
+		return;
 
-	data = Map(battery.rawVoltageData, 0, MAX_BATT_VALUE, 0, 4200);
+	long data;
+	uint16_t avgRawVoltageData = 0;
+
+	for(int i = 0;i<BATT_AMOUNT_OF_SAMPLES;i++)
+		avgRawVoltageData+=battery.rawVoltageData[i];
+
+	avgRawVoltageData /=BATT_AMOUNT_OF_SAMPLES;
+
+	data = Map(avgRawVoltageData, 0, MAX_BATT_VALUE, 0, 4200);
 
 	battery.voltageInteger = data/1000;
 	battery.voltageFract = data%1000;
 
-	battery.voltagePercentage = Map(battery.rawVoltageData, MAX_BATT_VALUE*0.88, MAX_BATT_VALUE, 0, 100);//MAX_BATT_VALUE*0.88 = 3,7V
+	battery.voltagePercentage = Map(avgRawVoltageData, MAX_BATT_VALUE*0.88, MAX_BATT_VALUE, 0, 100);//MAX_BATT_VALUE*0.88 = 3,7V
 }
 
 void TurnOffIfBatteryIsFlat()
 {
-	if(battery.voltageInteger > 2) //Temporary fix to do not consider first sample (0v)
-		if(battery.voltageInteger < 4 && battery.voltageFract <= 700)
-			MOSFETS_OFF;
+	if(!battery.isReadyToCalculateFlag)
+		return;
+
+	if(battery.voltageInteger < 4 && battery.voltageFract <= 700)
+		MOSFETS_OFF;
 }

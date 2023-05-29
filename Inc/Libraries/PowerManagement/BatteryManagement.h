@@ -15,9 +15,13 @@
 
 #define MAX_BATT_VALUE 2340  //4.2V
 
+#define BATT_AMOUNT_OF_SAMPLES 10  //4.2V
+
 typedef struct
 {
-	uint16_t rawVoltageData;  //Raw data collected from ADC
+	uint16_t rawVoltageData[BATT_AMOUNT_OF_SAMPLES];    //Raw data collected from ADC
+	uint8_t cntOfSample;            //Which sample are we taking
+	uint8_t isReadyToCalculateFlag; //After filling samples buffer
 
 	uint8_t voltagePercentage; //0%-100%
 	uint8_t voltageInteger;    //0-4

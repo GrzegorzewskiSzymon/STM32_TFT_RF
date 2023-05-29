@@ -496,7 +496,11 @@ void TIM3_IRQHandler()
 
 void ADC1_2_IRQHandler()
 {
-	battery.rawVoltageData = ADC1->DR;
+	battery.rawVoltageData[battery.cntOfSample++%10] = ADC1->DR;
+
+	if(battery.cntOfSample == 10)
+		battery.isReadyToCalculateFlag = 1;
+
 	ADC1->ISR |= ADC_ISR_EOC; //Reset flag
 }
 
