@@ -10,8 +10,8 @@
 
 
 // PA15
-#define MOSFETS_OFF  GPIOA->BSRR = 1<<31
-#define MOSFETS_ON   GPIOA->BSRR = 1<<15
+#define MOSFETS_OFF  GPIOA->BSRR |= (1<<31)
+#define MOSFETS_ON   GPIOA->BSRR |= (1<<15)
 
 #define MAX_BATT_VALUE 2340  //4.2V
 

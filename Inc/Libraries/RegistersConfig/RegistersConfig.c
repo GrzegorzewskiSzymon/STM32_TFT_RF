@@ -50,7 +50,8 @@ void GPIOA_Setup()
 //	GPIOA->MODER &= ~ (GPIO_MODER_MODE0_0 | GPIO_MODER_MODE0_1 ); // Input
 
 	// PA15 connected to gate of mosfet
-	GPIOA->MODER &= ~ GPIO_MODER_MODE15_1; // GPOM
+	GPIOA->MODER |=  GPIO_MODER_MODE15_Msk;
+	GPIOA->MODER &= ~GPIO_MODER_MODE15_1; // GPOM
 
 
 	//

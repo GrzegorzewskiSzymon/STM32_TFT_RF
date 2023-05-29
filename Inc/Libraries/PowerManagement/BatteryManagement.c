@@ -30,6 +30,7 @@ void CalculateBattVolatage()
 
 void TurnOffIfBatteryIsFlat()
 {
-	if(battery.voltageInteger < 4 || battery.voltageFract <= 700)
-		MOSFETS_OFF;
+	if(battery.voltageInteger > 2) //Temporary fix to do not consider first sample (0v)
+		if(battery.voltageInteger < 4 && battery.voltageFract <= 700)
+			MOSFETS_OFF;
 }
