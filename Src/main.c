@@ -7,11 +7,6 @@
 #include "../Inc/Libraries/TFT_GUI/TFT_GUI.h"
 #include "../Inc/Libraries/TouchScreen/XPT2046.h"
 
-
-uint8_t rxAddress[] = {0xEE, 0xDD, 0xCC, 0xBB, 0xAA};
-uint8_t rxBuff[32];
-
-
 int main(void)
 {
 	ClockFrequency_Setup();
@@ -29,7 +24,7 @@ int main(void)
 	MOSFETS_ON;
 
 	NRF24L01_Setup();
-	NRF24L01_Mode_Rx(rxAddress, 10);
+	NRF24L01_Mode_Tx(txAddress, 10);
 
 	Spi_ILI9341_Setup();
 	Spi_XPT2046_Setup();
@@ -50,15 +45,6 @@ int main(void)
 		GUI_Run();
 		XPT2046_Task();
 
-		if (NRF24L01_isDataAvailable(1))
-		{
-			NRF24L01_Receive(rxBuff);
-			for (uint8_t i = 0; i < 32; i++)
-			{
-				rxBuff[i] = 0;
-			}
-
-		}
 	}
 }
 

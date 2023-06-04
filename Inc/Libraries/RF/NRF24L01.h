@@ -16,6 +16,17 @@ uint8_t NRF24L01_Transmit(uint8_t *data);
 void NRF24L01_Receive(uint8_t *data);
 uint8_t NRF24L01_isDataAvailable(int pipenum);
 void NRF24L01_Mode_Rx(uint8_t *Address, uint8_t channel);
+
+void RF_SendData(uint8_t *address, uint8_t channel, uint8_t nrOfFunction, uint8_t* data, uint8_t length);
+
+extern uint8_t rxAddress[];
+extern uint8_t txAddress[];
+extern uint8_t rxBuff[32];
+extern uint8_t txBuff[32];
+
+#define NRF_CHANNEL_RX 10
+#define NRF_CHANNEL_TX 10
+
 //
 // memory map
 //

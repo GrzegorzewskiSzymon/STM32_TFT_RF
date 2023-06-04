@@ -10,6 +10,11 @@
 #include "../RegistersConfig/RegistersConfig.h"
 #include "NRF24L01.h"
 
+uint8_t rxAddress[] = {0xEE, 0xDD, 0xCC, 0xBB, 0xAA};
+uint8_t txAddress[] = {0xEE, 0xDD, 0xCC, 0xBB, 0xAA};
+uint8_t rxBuff[32];
+uint8_t txBuff[32];
+
 void Spi_NRF24L01_Setup()
 {
 	Spi3_Setup();
@@ -59,7 +64,6 @@ uint8_t NRF24L01_ReadReg(uint8_t reg)
 	return dataRx;
 
 }
-
 
 void NRF24L01_SendCommand(uint8_t cmd)
 {
@@ -138,7 +142,6 @@ void NRF24L01_Mode_Tx(uint8_t *address, uint8_t channel)
 
 	NRF24L01_WriteReg(RF_CH, channel);
 	NRF24L01_WriteReg_Multi(TX_ADDR, address, 5);
-
 
 	// Power up the device
 	uint8_t config = NRF24L01_ReadReg(CONFIG);
@@ -251,3 +254,28 @@ void NRF24L01_Receive(uint8_t *data)
 	cmdtosend = FLUSH_RX;
 	NRF24L01_SendCommand(cmdtosend);
 }
+
+
+//
+//
+//
+
+void RF_SendData(uint8_t *address, uint8_t channel, uint8_t nrOfFunction, uint8_t* data, uint8_t length )
+{
+	//Put NRF is in Transmitting mode and set address and channel
+	NRF24L01_Mode_Tx(address, channel);
+
+	uint8_t tab[32];
+	tab[0] = nrOfFunction;
+	for(int i = 1; i <32; i++)
+	{
+		if(length >= i)
+			tab[i] = data[i-1];
+		else
+			tab[i] = 0;
+	}
+
+	//combine nrOfFunction and data and send
+	NRF24L01_Transmit(tab);
+}
+
