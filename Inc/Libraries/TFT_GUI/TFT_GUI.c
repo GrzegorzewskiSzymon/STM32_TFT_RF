@@ -10,6 +10,7 @@
 #include "../TFT_ILI9341/TFT_ILI9341.h"
 #include "../PowerManagement/BatteryManagement.h"
 #include "../TouchScreen/XPT2046.h"
+#include "../RF/NRF24L01.h"
 #include "SettingsImg.h"
 #include "ReturnImg.h"
 #include "LedRGB.h"
@@ -41,7 +42,6 @@ void GUI_SetSlider(GUI_SLIDER *slider, uint16_t posX, uint16_t posY, uint16_t wi
 	slider->posY = posY;
 	slider->width = width;
 	slider->height = height;
-	slider->value = 0;
 }
 
 void GUI_SetDefaultSettings()
@@ -221,6 +221,9 @@ void GUI_DisplayLedRGBLayer()
 		ILI9341_DrawPixel(blueSlider.posX+1, blueSlider.posY+1,                                  blueSlider.width - 2, blueSlider.height -2, guiInfo.backgroundColor);
 		ILI9341_DrawPixel(blueSlider.posX+1, blueSlider.posY+blueSlider.height - blueSlider.value, blueSlider.width - 2, blueSlider.value - 1, ILI9341_BLUE);
 
+		__enable_irq();//When everything is drawn enable interrupts (needed for Systick in RF_SendData
+		uint8_t tmp[3] = {redSlider.value, greenSlider.value, blueSlider.value};
+		RF_SendData(txAddress, NRF_CHANNEL_TX, NRF_FUNCTION_RGB, tmp, 3);
 		needToRedrawPartsOfLayer = 0;
 	}
 	__enable_irq();//When everything is drawn enable interrupts

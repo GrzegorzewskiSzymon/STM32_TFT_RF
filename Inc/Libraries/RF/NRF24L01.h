@@ -27,6 +27,9 @@ extern uint8_t txBuff[32];
 #define NRF_CHANNEL_RX 10
 #define NRF_CHANNEL_TX 10
 
+#define NRF_FUNCTION_RGB 1
+
+
 //
 // memory map
 //
