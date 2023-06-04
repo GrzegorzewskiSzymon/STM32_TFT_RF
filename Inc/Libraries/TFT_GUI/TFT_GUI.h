@@ -44,6 +44,18 @@ typedef struct
 	uint16_t posX;
 	uint16_t posY;
 
+	uint16_t width;
+	uint16_t height;
+
+	uint8_t value;
+
+}GUI_SLIDER;
+
+typedef struct
+{
+	uint16_t posX;
+	uint16_t posY;
+
 }GUI_DISPLAY_BATTERY_DATA;
 extern GUI_DISPLAY_BATTERY_DATA batteryDisplayData;
 

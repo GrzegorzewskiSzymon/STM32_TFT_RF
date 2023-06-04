@@ -417,6 +417,11 @@ void ILI9341_DrawRoundedRectangleButton(GUI_BUTTON button)
 		ILI9341_DrawImg(button.posX, button.posY, 50, 50, button.imgPointer, 1);
 }
 
+void ILI9341_DrawRectangleSlider(GUI_SLIDER Slider)
+{
+	ILI9341_DrawRectangle(Slider.posX, Slider.posY, Slider.width, Slider.height, ILI9341_BLACK);
+}
+
 void ILI9341_DrawChar(int x, int y, char chr, uint16_t color,uint16_t backgroundColor, uint8_t isBackgroundColorUsed)
 {
 	if(chr > 0x7E) return; //chr > '~'

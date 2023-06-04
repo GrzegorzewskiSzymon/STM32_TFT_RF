@@ -35,6 +35,15 @@ void GUI_SetButton(GUI_BUTTON *button, uint16_t posX,uint16_t posY, uint16_t wid
 	button->imgPointer = imgPointer;
 }
 
+void GUI_SetSlider(GUI_SLIDER *slider, uint16_t posX, uint16_t posY, uint16_t width, uint16_t height)
+{
+	slider->posX = posX;
+	slider->posY = posY;
+	slider->width = width;
+	slider->height = height;
+	slider->value = 0;
+}
+
 void GUI_SetDefaultSettings()
 {
 	guiInfo.backgroundColor = ILI9341_DARKGREY;
@@ -47,6 +56,17 @@ uint8_t GUI_IsButtonTouched(GUI_BUTTON button)
 	if(button.posX+button.width  > posX && button.posX < posX &&
 	   button.posY+button.height > posY && button.posY < posY)
 		return 1;
+	return 0;
+}
+
+uint8_t GUI_UpdateSlider(GUI_SLIDER *slider)
+{
+	if(slider->posX+slider->width  > posX && slider->posX < posX &&
+		slider->posY+slider->height > posY && slider->posY < posY)
+	{
+		slider->value = slider->posY - posY;
+		return 1;
+	}
 	return 0;
 }
 
@@ -158,6 +178,9 @@ void GUI_DisplaySettingsLayer()
 	__enable_irq();//When everything is drawn enable interrupts
 }
 
+GUI_SLIDER redSlider;
+GUI_SLIDER greenSlider;
+GUI_SLIDER blueSlider;
 void GUI_DisplayLedRGBLayer()
 {
 	/*Exclude possibility of occurring interrupt witch another drawing function (TIM3 displaying battery voltage)
@@ -171,12 +194,34 @@ void GUI_DisplayLedRGBLayer()
 		if(guiInfo.displayRotation == VERTICAL)
 		{
 			GUI_SetButton(&guiButton_Return, 0, 0, 50, 50, (uint8_t *)returnImg);
+
+			GUI_SetSlider(&redSlider, 70, 50, 30, 256);
+			GUI_SetSlider(&greenSlider, 110, 50, 30, 256);
+			GUI_SetSlider(&blueSlider, 150, 50, 30, 256);
+
 		}
 		else //Horizontal
 		{
 			GUI_SetButton(&guiButton_Return, 0, 0, 50, 50, (uint8_t *)returnImg);
 		}
 		ILI9341_DrawRoundedRectangleButton(guiButton_Return);
+		ILI9341_DrawRectangleSlider(redSlider);
+		ILI9341_DrawRectangleSlider(greenSlider);
+		ILI9341_DrawRectangleSlider(blueSlider);
+	}
+
+	if(needToRedrawPartsOfLayer || guiAlreadyDisplayedLayer != guiSelectedLayer)
+	{
+		ILI9341_DrawPixel(redSlider.posX+1, redSlider.posY+1,                                  redSlider.width - 2, redSlider.height -2, guiInfo.backgroundColor);
+		ILI9341_DrawPixel(redSlider.posX+1, redSlider.posY+redSlider.height - redSlider.value, redSlider.width - 2, redSlider.value - 1, ILI9341_RED);
+
+		ILI9341_DrawPixel(greenSlider.posX+1, greenSlider.posY+1,                                  greenSlider.width - 2, greenSlider.height -2, guiInfo.backgroundColor);
+		ILI9341_DrawPixel(greenSlider.posX+1, greenSlider.posY+greenSlider.height - greenSlider.value, greenSlider.width - 2, greenSlider.value - 1, ILI9341_GREEN);
+
+		ILI9341_DrawPixel(blueSlider.posX+1, blueSlider.posY+1,                                  blueSlider.width - 2, blueSlider.height -2, guiInfo.backgroundColor);
+		ILI9341_DrawPixel(blueSlider.posX+1, blueSlider.posY+blueSlider.height - blueSlider.value, blueSlider.width - 2, blueSlider.value - 1, ILI9341_BLUE);
+
+		needToRedrawPartsOfLayer = 0;
 	}
 	__enable_irq();//When everything is drawn enable interrupts
 }
@@ -240,6 +285,8 @@ void GUI_TouchCheck()
 			{
 				guiSelectedLayer = LAYER_DESKTOP;
 			}
+			if(GUI_UpdateSlider(&redSlider) || GUI_UpdateSlider(&greenSlider) || GUI_UpdateSlider(&blueSlider))
+				needToRedrawPartsOfLayer = 1; //Update Sliders
 			break;
 	}
 }
